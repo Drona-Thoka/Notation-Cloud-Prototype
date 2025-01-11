@@ -1,4 +1,5 @@
-# Notation-Cloud-Prototype
+# Notation Cloud
+### Video Demo: https://youtu.be/HZUE3Q5_wVI?si=1EXmueuRs6AdH3si
 
 <hr>
 
@@ -80,4 +81,7 @@ def index():
 #### CS50 for its SQL library
 #### Created by Drona Thoka from Naperville, Illinois in the United States of America
 #### GitHub: CyberFlare7408
+#### EDX: FT_2407_6JN3
 #### Dated: January 5 2025
+### This was CS50
+

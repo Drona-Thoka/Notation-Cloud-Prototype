@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Notation Cloud</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../static/main.css"/>
+        <script src="../static/sup.js"></script>
+		<noscript><link rel="stylesheet" href="../static/noscript.css"></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1>WVHS</h1>
+					</header>
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Notation Cloud</h2>
+								<p>Uploaded notation will appear on this page.</p>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper">
+								<div class="inner">
+
+									<section>
+										<!-- EXPERIMENTAL BUTTON FOR UPLOAD GAME-->
+										<div class="header-container">
+											<h3 class="major">Upload Game</h3>
+                                            <button class="header-button" id="uploadGameButton" onclick="javascript:uploadGamePanel()">></button>
+                                    </section>
+
+                                    <div class="uploadPanel" id="uploadPanel" style="display: none;">
+                                        <form action="/notationCloud" method="POST" enctype="multipart/form-data" id="gameUploadForm">
+                                            <div class="table-wrapper">
+                                                <table class="alt">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><input id="whitePlayerUpload" name="whitePlayerUpload" placeholder="White Player" type="text"></td>
+                                                            <td><input id="blackPlayerUpload" name="blackPlayerUpload" placeholder="Black Player" type="text"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <select name="boardUpload" id="boardUpload">
+                                                                    <option disabled selected>Board #</option>
+                                                                    <option>1</option>
+                                                                    <option>2</option>
+                                                                    <option>3</option>
+                                                                    <option>4</option>
+                                                                    <option>5</option>
+                                                                    <option>6</option>
+                                                                    <option>7</option>
+                                                                    <option>8</option>
+                                                                    <option>Alt</option>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <select id="resultUpload" name="resultUpload">
+                                                                    <option disabled selected>Result</option>
+                                                                    <option>1-0</option>
+                                                                    <option>0.5-0.5</option>
+                                                                    <option>0-1</option>
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <select id="wvWinUpload" name="wvWinUpload">
+                                                                    <option disabled selected>WV Win?</option>
+                                                                    <option>Yes</option>
+                                                                    <option>No</option>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input id="dateUpload" name="dateUpload" class="dateUpload" placeholder="Date: MM/DD/YY" type="date">
+                                                            </td>
+                                                        </tr>
+														<tr>
+															<td>
+																<p>Upload PNG:</p><input type="file" name="pngUpload" id="pngUpload">
+															</td>
+															<td>
+																<p>Upload PGN:</p><input type="file" name="pgnUpload" id="pgnUpload">
+															</td>
+														</tr>
+                                                        <tr>
+                                                            <td>
+																<select id="eventUpload" name="eventUpload">
+																	<option disabled selected>Event</option>
+																	<option>Freindly</option>
+																	<option>DVC</option>
+																	<option>Conference</option>
+																	<option>Sectionals</option>
+																	<option>State</option>
+																</select>
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" name="uploadSubmitButton" onclick="javascript: checkSubmit();">Submit</button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </form>
+                                    </div>
+<!--################################################################################################################################-->
+					<section>
+						<h3 class="major">Games: </h3>
+
+						<div class="table-wrapper">
+							<table class="alt">
+								<thead>
+									<tr>
+										<th>Date</th>
+										<th>Event</th>
+										<th>Board</th>
+										<th>Player of White</th>
+										<th>Player of Black</th>
+										<th>Result</th>
+										<th>WV Win</th>
+										<th>PNG</th>
+										<th>PGN</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for row in rows%}
+									<tr>
+										<!--Date-->
+										<td>{{row["date"]}}</td>
+										<!--Event-->
+										<td>{{row["event"]}}</td>
+										<!--Brd #-->
+										<td>{{row["board_number"]}}</td>
+										<!--White-->
+										<td>{{row["white_player"]}}</td>
+										<!--Black-->
+										<td>{{row["black_player"]}}</td>
+										<!--Result-->
+										<td>{{row["result"]}}</td>
+										<!--WV WIN-->
+										<td>{{row["wv_win"]}}</td>
+										<!--PNG-->
+										<td><a href="{{ url_for('download', filename=row['png_file_name']) }}">{{row["png_file_name"]}}</a></td>
+										<!--PGN-->
+										<td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">{{row["pgn_file_name"]}}</a></td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</section>
+
+<!--################################################################################################################################ -->
+
+				<!-- Footer -->
+					<section id="footer">
+						<div class="inner">
+								<li class="icon brands fa-instagram"><a href="http://instagram.com/wvhschess">instagram.com/wvhschess</a></li>
+								<li class="icon brands fa-googlesite"><a href="https://sites.google.com/ipsd.org/chessteam/home">sites.google.com/ipsd.org/chessteam/home</a></li>
+							</ul>
+							<ul class="copyright">
+								<li>Drona Thoka, 2025</li>
+							</ul>
+						</div>
+					</section>
+
+			</div>
+	</body>
+</html>
