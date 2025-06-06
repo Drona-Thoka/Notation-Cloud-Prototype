@@ -74,14 +74,9 @@ def index():
 ```
 #### The site operates on 3 http routes, an SQLite3 database, and a little javascript, one route deals with processing the users form and inserting it into an SQLite3 database, another naviagates the user from index.html to the site (pictured), and another handles image / pgn downloading.
 
-### Inspiration: This was inspired by a similar project I contributed to on github, utilizing the same free template.
-
 ### Credits:
 #### HTML 5 UP! for the html / css template that was modifed.
-#### CS50 for its SQL library
 #### Created by Drona Thoka from Naperville, Illinois in the United States of America
 #### GitHub: CyberFlare7408
-#### EDX: FT_2407_6JN3
 #### Dated: January 5 2025
-### This was CS50
 
