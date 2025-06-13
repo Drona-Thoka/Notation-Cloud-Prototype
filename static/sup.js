@@ -52,3 +52,14 @@ function checkSubmit(){
     var form = document.getElementById("gameUploadForm");
     form.submit();
 }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('button-analysis').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.open(
+        'https://lichess.org/analysis/standard#0',
+        'LichessAnalysis',
+        'width=900,height=700,top=100,left=100,resizable=yes,scrollbars=yes'
+      );
+    });
+  });
