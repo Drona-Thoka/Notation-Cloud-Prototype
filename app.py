@@ -92,3 +92,11 @@ def download(filename):
             as_attachment=True
         )
     return "File not found", 404
+
+'''
+@app.route('/delete_game/<int:game_id>', methods=['POST'])
+
+def delete_game(game_id):
+    db.execute("DELETE FROM games WHERE id = ?", game_id)
+    return redirect(url_for("notationCloud"))
+'''
