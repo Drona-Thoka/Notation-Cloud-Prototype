@@ -4190,3 +4190,20 @@ input, select, textarea {
 		color: black; 
 		opacity: 1; 
 	}
+
+	.username-form{
+		padding: 40px;
+		border-radius: 10px;
+	}
+
+	.password-form{
+		padding: 40px;
+		border-radius: 10px;		
+	}
+
+	.center-wrapper{
+		height: 100vh;
+  		display: flex;
+    	justify-content: center;
+  		align-items: center;
+	}

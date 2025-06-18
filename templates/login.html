@@ -4,18 +4,21 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, width=device-width">
+        <link rel="stylesheet" href="../static/main.css/">
         <title>Login to your WV-Chess account {% block title %}{% endblock %}</title>
 
     </head>
     <body>
-        <form action="/login" method="post">
-            <div class="">
-                <input autocomplete="off" autofocus class="" name="username" placeholder="Username" type="text">
-            </div>
-            <div class="">
-                <input class="" name="password" placeholder="Password" type="password">
-            </div>
-            <button class="" type="submit">Log In</button>
-        </form>
+        <div class="center-wrapper">
+            <form action="/login" method="post">
+                <div class="username-form">
+                    <input autocomplete="off" autofocus class="" name="username" placeholder="Username" type="text">
+                </div>
+                <div class="password-form">
+                    <input class="" name="password" placeholder="Password" type="password">
+                </div>
+                <button class="login-submit" type="submit">Log In</button>
+            </form>
+        </div>
     </body>
 </html>
