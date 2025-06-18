@@ -3,6 +3,7 @@ from flask import Flask, flash, redirect, render_template, request, session, sen
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 import io
+from helpers import login_required
 
 # Configure application
 app = Flask(__name__)
@@ -23,8 +24,17 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    session.clear()
+
+    if request.method == "GET":
+        return render_template("login.html")
+    else:
+        '''TODO'''
 
 @app.route("/notationCloud", methods=["GET", "POST"])
+@login_required
 def notationCloud():
     print("ROUTE ENTERED")
     if request.method == "GET":
@@ -94,6 +104,7 @@ def download(filename):
     return "File not found", 404
 
 '''
+TODO
 @app.route('/delete_game/<int:game_id>', methods=['POST'])
 
 def delete_game(game_id):

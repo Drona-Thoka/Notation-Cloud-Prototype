@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <title>Login to your WV-Chess account {% block title %}{% endblock %}</title>
+
+    </head>
+    <body>
+        <form action="/login" method="post">
+            <div class="">
+                <input autocomplete="off" autofocus class="" name="username" placeholder="Username" type="text">
+            </div>
+            <div class="">
+                <input class="" name="password" placeholder="Password" type="password">
+            </div>
+            <button class="" type="submit">Log In</button>
+        </form>
+    </body>
+</html>
