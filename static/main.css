@@ -4192,13 +4192,20 @@ input, select, textarea {
 	}
 
 	.username-form{
-		padding: 40px;
+		padding: 15px;
 		border-radius: 10px;
 	}
 
 	.password-form{
-		padding: 40px;
+		padding: 15px;
 		border-radius: 10px;		
+	}
+
+	.login-submit{
+		width: 475px;
+  		display: flex;
+    	justify-content: center;
+  		align-items: center;
 	}
 
 	.center-wrapper{
