@@ -118,7 +118,12 @@
 <!--################################################################################################################################-->
 					<section>
 						<h3 class="major">Games: </h3>
-
+						
+						<form method="GET" action="{{ url_for('notationCloud') }}">
+    						<input type="text" name="query" placeholder="Search by player, event, etc." required>
+    						<button type="submit">Search</button>
+						</form>
+						
 						<div class="table-wrapper">
 							<table class="alt">
 								<thead>
