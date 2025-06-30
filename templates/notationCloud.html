@@ -120,12 +120,68 @@
 						<h3 class="major">Games: </h3>
 						
 						<!--Search feature-->
-						<form method="GET" action="{{ url_for('notationCloud') }}">
-    						<input type="text" name="query" placeholder="Search by player, event, etc." required>
+						<form id="search-form" method="GET" action="{{ url_for('notationCloud') }}">
+							<table>
+								<tr>
+									<th><input type="text" name="query" placeholder="Date"></th>
+									<th><input type="text" name="query" placeholder="Event"></th>
+									<th><input type="text" name="query" placeholder="Board"></th>
+									<th><input type="text" name="query" placeholder="White"></th>
+									<th><input type="text" name="query" placeholder="Black"></th>
+									<th><input type="text" name="query" placeholder="Result"></th>
+									<th><input type="text" name="query" placeholder="WV-W"></th>
+									<th><input type="text" name="query" placeholder="PNG"></th>
+									<th><input type="text" name="query" placeholder="PGN"></th>
+								</tr>
+							</table>
 						</form>
-						
+
+						<!--Searched Display-->
 						<div class="table-wrapper">
-							<table class="alt">
+							<table id="searched-table" style="visibility: hidden;">
+								<thead>
+									<tr>
+										<th>Date</th>
+										<th>Event</th>
+										<th>Board</th>
+										<th>Player of White</th>
+										<th>Player of Black</th>
+										<th>Result</th>
+										<th>WV Win</th>
+										<th>PNG</th>
+										<th>PGN</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for row in rows%}
+									<tr>
+										<!--Date-->
+										<td>{{row["date"]}}</td>
+										<!--Event-->
+										<td>{{row["event"]}}</td>
+										<!--Brd #-->
+										<td>{{row["board_number"]}}</td>
+										<!--White-->
+										<td>{{row["white_player"]}}</td>
+										<!--Black-->
+										<td>{{row["black_player"]}}</td>
+										<!--Result-->
+										<td>{{row["result"]}}</td>
+										<!--WV WIN-->
+										<td>{{row["wv_win"]}}</td>
+										<!--PNG-->
+										<td><a href="{{ url_for('download', filename=row['png_file_name']) }}">{{row["png_file_name"]}}</a></td>
+										<!--PGN-->
+										<td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">{{row["pgn_file_name"]}}</a></td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+
+						<!--Game Display Table (A game is represenred by 1 row of various meta-data features)-->
+						<div class="table-wrapper">
+							<table class="alt" id="full-table">
 								<thead>
 									<tr>
 										<th>Date</th>

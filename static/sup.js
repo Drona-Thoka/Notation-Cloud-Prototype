@@ -1,3 +1,4 @@
+//Display the upload panel
 function uploadGamePanel(){
     var panel = document.getElementById("uploadPanel");
     var button = document.getElementById("uploadGameButton");
@@ -11,6 +12,7 @@ function uploadGamePanel(){
 
 }
 
+//Check submit fields for game upload
 function checkSubmit(){
     var white = document.getElementById("whitePlayerUpload").value;
     var black = document.getElementById("blackPlayerUpload").value;
@@ -53,6 +55,7 @@ function checkSubmit(){
     form.submit();
 }
 
+//Window Opening for analysis
   document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('button-analysis').addEventListener('click', function(e) {
       e.preventDefault();
@@ -63,3 +66,6 @@ function checkSubmit(){
       );
     });
   });
+
+
+//Search query 
