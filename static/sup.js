@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+//Clear Button for search
 document.addEventListener("DOMContentLoaded", function () {
     const clearButton = document.getElementById("clear-search-button");
     const searchInputs = document.querySelectorAll('#search-form input[type="text"]');
