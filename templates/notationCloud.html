@@ -123,60 +123,21 @@
 						<form id="search-form" method="GET" action="{{ url_for('notationCloud') }}">
 							<table>
 								<tr>
-									<th><input type="text" name="query" placeholder="Date"></th>
-									<th><input type="text" name="query" placeholder="Event"></th>
-									<th><input type="text" name="query" placeholder="Board"></th>
-									<th><input type="text" name="query" placeholder="White"></th>
-									<th><input type="text" name="query" placeholder="Black"></th>
-									<th><input type="text" name="query" placeholder="Result"></th>
-									<th><input type="text" name="query" placeholder="WV-W"></th>
-									<th><input type="text" name="query" placeholder="PNG"></th>
-									<th><input type="text" name="query" placeholder="PGN"></th>
+									<th><input type="text" name="date-query" placeholder="Date"></th>
+									<th><input type="text" name="event-query" placeholder="Event"></th>
+									<th><input type="text" name="board-query" placeholder="Board"></th>
+									<th><input type="text" name="white-query" placeholder="White"></th>
+									<th><input type="text" name="black-query" placeholder="Black"></th>
+									<th><input type="text" name="result-query" placeholder="Result"></th>
+									<th><input type="text" name="wvwin-query" placeholder="WV-W"></th>
+									<th><input type="text" name="clear-search-button" placeholder="CLEAR     "></th>
 								</tr>
 							</table>
 						</form>
 
 						<!--Searched Display-->
-						<div class="table-wrapper">
-							<table id="searched-table" style="visibility: hidden;">
-								<thead>
-									<tr>
-										<th>Date</th>
-										<th>Event</th>
-										<th>Board</th>
-										<th>Player of White</th>
-										<th>Player of Black</th>
-										<th>Result</th>
-										<th>WV Win</th>
-										<th>PNG</th>
-										<th>PGN</th>
-									</tr>
-								</thead>
-								<tbody>
-									{% for row in rows%}
-									<tr>
-										<!--Date-->
-										<td>{{row["date"]}}</td>
-										<!--Event-->
-										<td>{{row["event"]}}</td>
-										<!--Brd #-->
-										<td>{{row["board_number"]}}</td>
-										<!--White-->
-										<td>{{row["white_player"]}}</td>
-										<!--Black-->
-										<td>{{row["black_player"]}}</td>
-										<!--Result-->
-										<td>{{row["result"]}}</td>
-										<!--WV WIN-->
-										<td>{{row["wv_win"]}}</td>
-										<!--PNG-->
-										<td><a href="{{ url_for('download', filename=row['png_file_name']) }}">{{row["png_file_name"]}}</a></td>
-										<!--PGN-->
-										<td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">{{row["pgn_file_name"]}}</a></td>
-									</tr>
-									{% endfor %}
-								</tbody>
-							</table>
+						<div class="table-wrapper" id="searched-table" style="display: none">
+							<!--Include Game Table via JS-->
 						</div>
 
 						<!--Game Display Table (A game is represenred by 1 row of various meta-data features)-->

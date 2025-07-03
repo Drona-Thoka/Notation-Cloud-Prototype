@@ -1,0 +1,41 @@
+<div class="table-wrapper">
+    <table id="searched-table" style="display: block;">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Event</th>
+                <th>Board</th>
+                <th>Player of White</th>
+                <th>Player of Black</th>
+                <th>Result</th>
+                <th>WV Win</th>
+                <th>PNG</th>
+                <th>PGN</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows%}
+            <tr>
+                <!--Date-->
+                <td>{{row["date"]}}</td>
+                <!--Event-->
+                <td>{{row["event"]}}</td>
+                <!--Brd #-->
+                <td>{{row["board_number"]}}</td>
+                <!--White-->
+                <td>{{row["white_player"]}}</td>
+                <!--Black-->
+                <td>{{row["black_player"]}}</td>
+                <!--Result-->
+                <td>{{row["result"]}}</td>
+                <!--WV WIN-->
+                <td>{{row["wv_win"]}}</td>
+                <!--PNG-->
+                <td><a href="{{ url_for('download', filename=row['png_file_name']) }}">{{row["png_file_name"]}}</a></td>
+                <!--PGN-->
+                <td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">{{row["pgn_file_name"]}}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

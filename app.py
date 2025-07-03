@@ -127,6 +127,34 @@ def download(filename):
         )
     return "File not found", 404
 
+@app.route("/search_games", methods=["POST"])
+def search():
+    filters = {
+        "date": request.form.get("date-query"),
+        "event": request.form.get("event-query"),
+        "board_number": request.form.get("board-query"),
+        "white_player": request.form.get("white-query"),
+        "black_player": request.form.get("black-query"),
+        "result": request.form.get("result-query"),
+        "wv_win": request.form.get("wvwin-query")
+    }
+
+    print("Filters received:", filters)
+
+    query = "SELECT * FROM games WHERE 1=1"
+    args = []
+
+    for field, value in filters.items():
+        if value:
+            query += f" AND {field} LIKE ?"
+            args.append(f"%{value}%")  
+
+    rows = db.execute(query, *args)
+    print(f"Found {len(rows)} rows")
+
+    return render_template("games_table.html", rows=rows)
+
+
 '''
 TODO
 @app.route('/delete_game/<int:game_id>', methods=['POST'])

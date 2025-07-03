@@ -69,3 +69,47 @@ function checkSubmit(){
 
 
 //Search query 
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("search-form");
+    const fullTable = document.getElementById("full-table");
+    const searchedTable = document.getElementById("searched-table");
+
+    let timeout = null;
+
+    form.addEventListener("input", function () {
+        clearTimeout(timeout);  
+
+        timeout = setTimeout(() => {
+            const formData = new FormData(form);
+
+            let allEmpty = true;
+            for (const value of formData.values()) {
+                if (value.trim() !== "") {
+                    allEmpty = false;
+                    break;
+                }
+            }
+
+            if (allEmpty) {
+                fullTable.style.display = "block";
+                searchedTable.style.display = "none";
+                searchedTable.innerHTML = ""; 
+                return; //Exit if null
+            }
+
+            fetch("/search_games", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                searchedTable.innerHTML = html;
+                searchedTable.style.display = "block";
+                fullTable.style.display = "none";
+            })
+            .catch(err => {
+                console.error("Search error:", err);
+            });
+        }, 300); 
+    });
+});
