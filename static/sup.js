@@ -113,3 +113,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 300); 
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const clearButton = document.getElementById("clear-search-button");
+    const searchInputs = document.querySelectorAll('#search-form input[type="text"]');
+    const fullTable = document.getElementById("full-table");
+    const searchedTable = document.getElementById("searched-table");
+
+    clearButton.addEventListener("click", function () {
+        searchInputs.forEach(input => {
+                input.value = '';
+        });
+        fullTable.style.display = "block";
+        searchedTable.style.display = "none";
+    });
+
+
+});
