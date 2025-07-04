@@ -155,11 +155,16 @@ def search():
     return render_template("games_table.html", rows=rows)
 
 
-'''
-TODO
-@app.route('/delete_game/<int:game_id>', methods=['POST'])
+#Delete route
+@app.route('/delete_game', methods=['POST'])
+def delete_game():
+    game_id = request.form.get("game_id");
+    if not game_id:
+        return;
 
-def delete_game(game_id):
-    db.execute("DELETE FROM games WHERE id = ?", game_id)
-    return redirect(url_for("notationCloud"))
-'''
+    try:
+        db.execute("DELETE FROM games WHERE id = ?", game_id)
+        return "", 204  
+    except Exception as e:
+        print("Deletion error:", e)
+        return "Failed to delete game", 500

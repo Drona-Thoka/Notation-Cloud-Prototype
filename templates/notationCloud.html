@@ -159,6 +159,7 @@
 								<tbody>
 									{% for row in rows%}
 									<tr>
+										<td style="display: none;" id = "game_id">{{row["id"]}}</td>
 										<!--Date-->
 										<td>{{row["date"]}}</td>
 										<!--Event-->
@@ -174,9 +175,10 @@
 										<!--WV WIN-->
 										<td>{{row["wv_win"]}}</td>
 										<!--PNG-->
-										<td><a href="{{ url_for('download', filename=row['png_file_name']) }}">{{row["png_file_name"]}}</a></td>
+										<td><a href="{{ url_for('download', filename=row['png_file_name']) }}">Download PNG</a></td>
 										<!--PGN-->
-										<td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">{{row["pgn_file_name"]}}</a></td>
+										<td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">Download PGN</a></td>
+										<td><button type="button">🗑️</button></td>
 									</tr>
 									{% endfor %}
 								</tbody>

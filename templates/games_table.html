@@ -16,6 +16,7 @@
         <tbody>
             {% for row in rows%}
             <tr>
+                <td style="display: none;" id = "game_id">{{row["id"]}}</td>
                 <!--Date-->
                 <td>{{row["date"]}}</td>
                 <!--Event-->
