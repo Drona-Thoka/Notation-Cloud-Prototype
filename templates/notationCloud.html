@@ -158,8 +158,7 @@
 								</thead>
 								<tbody>
 									{% for row in rows%}
-									<tr>
-										<td style="display: none;" id = "game_id">{{row["id"]}}</td>
+            						<tr data-game-id="{{ row.id }}">
 										<!--Date-->
 										<td>{{row["date"]}}</td>
 										<!--Event-->
@@ -178,7 +177,7 @@
 										<td><a href="{{ url_for('download', filename=row['png_file_name']) }}">Download PNG</a></td>
 										<!--PGN-->
 										<td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">Download PGN</a></td>
-										<td><button type="button">🗑️</button></td>
+										<td><button type="button" data-id="{{ row.id }}" class="delete-button">🗑️</button></td>
 									</tr>
 									{% endfor %}
 								</tbody>

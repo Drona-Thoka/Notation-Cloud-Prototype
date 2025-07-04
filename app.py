@@ -160,7 +160,7 @@ def search():
 def delete_game():
     game_id = request.form.get("game_id");
     if not game_id:
-        return;
+        return "Missing id", 400;
 
     try:
         db.execute("DELETE FROM games WHERE id = ?", game_id)

@@ -131,3 +131,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 });
+
+
+//Delete AJAX
+document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("click", function (e) {
+        if (!e.target) return;
+        const button = e.target.closest(".delete-button");
+        if(!button || !document.body.contains(button)) return;
+
+        const gameId = button.dataset.id;
+        if(!gameId) return;
+
+        if (!confirm("Are you sure you want to delete this game?")) return;
+
+        fetch("/delete_game", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `game_id=${encodeURIComponent(gameId)}`
+        })
+        .then(response => {
+        if (response.ok) {
+            const rows = document.querySelectorAll(`tr[data-game-id="${gameId}"]`);
+            rows.forEach(row => row.remove());        
+        } else {
+            alert("Failed to delete game.");
+        }
+        })
+        .catch(error => {
+        console.error("Delete error:", error);
+        });
+    
+    });
+});
