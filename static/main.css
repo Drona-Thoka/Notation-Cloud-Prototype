@@ -4214,3 +4214,7 @@ input, select, textarea {
     	justify-content: center;
   		align-items: center;
 	}
+
+	.hidden-row {
+  		display: none;
+	}

@@ -166,3 +166,71 @@ document.addEventListener("DOMContentLoaded", function () {
     
     });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInputs = document.querySelectorAll("table.search-bar input");
+  const tableRows = document.querySelectorAll("#full-table tbody tr");
+  const loadMoreBtn = document.getElementById("load-more-btn");
+  const loadMoreWrapper = document.getElementById("load-more-wrapper");
+  const rowsPerClick = 50;
+
+  function isSearchActive() {
+    return Array.from(searchInputs).some(input => input.value.trim() !== "");
+  }
+
+  function filterRows() {
+    const filters = {};
+    searchInputs.forEach(input => {
+      filters[input.name] = input.value.trim().toLowerCase();
+    });
+
+    if (isSearchActive()) {
+      // Show all rows for searching
+      tableRows.forEach(row => {
+        row.classList.remove("hidden-row");
+        const cells = row.querySelectorAll("td");
+
+        const match = (!filters.date || cells[0].textContent.toLowerCase().includes(filters.date)) &&
+                      (!filters.event || cells[1].textContent.toLowerCase().includes(filters.event)) &&
+                      (!filters.board || cells[2].textContent.toLowerCase().includes(filters.board)) &&
+                      (!filters.white || cells[3].textContent.toLowerCase().includes(filters.white)) &&
+                      (!filters.black || cells[4].textContent.toLowerCase().includes(filters.black)) &&
+                      (!filters.result || cells[5].textContent.toLowerCase().includes(filters.result)) &&
+                      (!filters.wv_win || cells[6].textContent.toLowerCase().includes(filters.wv_win));
+
+        row.style.display = match ? "" : "none";
+      });
+
+      loadMoreWrapper.style.display = "none";
+    } else {
+      // Reset view if no search
+      tableRows.forEach((row, index) => {
+        row.style.display = index < 20 ? "" : "none";
+        if (index >= 20) row.classList.add("hidden-row");
+      });
+      loadMoreWrapper.style.display = "block";
+    }
+  }
+
+  // Hook up input event to each search box
+  searchInputs.forEach(input => {
+    input.addEventListener("input", filterRows);
+  });
+
+  // Load More button logic
+  loadMoreBtn.addEventListener("click", () => {
+    const hiddenRows = document.querySelectorAll("#full-table .hidden-row");
+    let count = 0;
+    for (let row of hiddenRows) {
+      row.classList.remove("hidden-row");
+      row.style.display = "";
+      count++;
+      if (count >= rowsPerClick) break;
+    }
+
+    // If no more hidden rows, hide the button
+    if (document.querySelectorAll("#full-table .hidden-row").length === 0) {
+      loadMoreWrapper.style.display = "none";
+    }
+  });
+});
