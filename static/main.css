@@ -4218,3 +4218,10 @@ input, select, textarea {
 	.hidden-row {
   		display: none;
 	}
+
+	/*FIX IN NEXT SESSION, STYLE FOR ANNCOUNEMNT EMBEDDING*/
+	.announcements{
+		display: flex;
+		height: 400px;
+		width: 200px;
+	}
