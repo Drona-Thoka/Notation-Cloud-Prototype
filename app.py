@@ -58,7 +58,7 @@ def login():
 
 
 @app.route("/notationCloud", methods=["GET", "POST"])
-#@login_required
+@login_required
 def notationCloud():
     print("ROUTE ENTERED")
     if request.method == "GET":
