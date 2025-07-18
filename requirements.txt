@@ -1,5 +1,5 @@
 Flask
 gunicorn
 cs50
-werkzeug.security 
+Werkzeug
 Flask-Session
