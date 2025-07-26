@@ -33,11 +33,11 @@ def login():
     else:
         #Ensure username was submitted
         if not request.form.get("username"):
-            return redirect("apology.html")
+            return redirect("login.html")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return redirect("apology.html")
+            return redirect("login.html")
 
                 # Query database for username
         rows = db.execute(
@@ -48,7 +48,7 @@ def login():
         if len(rows) != 1 or not check_password_hash(
             rows[0]["hash"], request.form.get("password")
         ):
-            return redirect("apology.html")
+            return redirect("login.html")
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
