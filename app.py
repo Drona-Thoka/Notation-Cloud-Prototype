@@ -168,3 +168,8 @@ def delete_game():
     except Exception as e:
         print("Deletion error:", e)
         return "Failed to delete game", 500
+    
+
+@app.route("/pgn-maker")
+def pgn_maker():
+    return render_template("pgn_maker.html")

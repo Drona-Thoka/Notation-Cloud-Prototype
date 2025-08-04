@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>PGN Maker</title>
+        <link rel="stylesheet" href="../static/main.css"/>
+        <script src="../static/sup.js"></script>
+    </head>
+    <body>
+    <div id="container">
+        <h1>Create PGN</h1>
+        
+        <form id="pgn-form">
+        <input type="text" id="event" placeholder="Event">
+        <input type="text" id="site" placeholder="Site">
+        <input type="text" id="date" placeholder="Date (YYYY.MM.DD)">
+        <input type="text" id="round" placeholder="Round">
+        <input type="text" id="white" placeholder="White">
+        <input type="text" id="black" placeholder="Black">
+        <input type="text" id="result" placeholder="Result (e.g. 1-0)">
+        <textarea id="moves" rows="10" placeholder="Enter moves here..."></textarea>
+        <button type="button" onclick="generatePGN()">Generate PGN</button>
+        </form>
+
+        <h2>PGN Output</h2>
+        <textarea id="output" rows="12" readonly></textarea>
+        <button onclick="copyPGN()">Copy</button>
+        <button onclick="downloadPGN()">Download</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/pgn_maker.js') }}"></script>
+    </body>
+</html>
