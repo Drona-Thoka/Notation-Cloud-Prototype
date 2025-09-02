@@ -4232,3 +4232,75 @@ input, select, textarea {
 		box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
 		border-radius: 8px;	
 	}
+
+	
+    .pgn-maker-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .main-section {
+      flex: 1;
+      display: flex;
+      padding: 10px;
+      gap: 10px;
+    }
+
+    .text-input, .board-area {
+      flex: 1;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 10px;
+      overflow: auto;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      resize: none;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .output-section {
+      padding: 10px;
+    }
+
+    .output-box {
+      width: 100%;
+      height: 100px;
+      border-radius: 6px;
+      padding: 8px;
+      overflow-y: auto;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+
+    .buttons {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .buttons button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .copy-btn {
+      background: #4caf50;
+    }
+
+    .download-btn {
+      background: #2196f3;
+    }
+
+    .copy-btn:hover { background: #45a049; }
+    .download-btn:hover { background: #1976d2; }
+  

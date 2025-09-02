@@ -1,33 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>PGN Maker</title>
-        <link rel="stylesheet" href="../static/main.css"/>
-        <script src="../static/sup.js"></script>
-    </head>
-    <body>
-    <div id="container">
-        <h1>Create PGN</h1>
-        
-        <form id="pgn-form">
-        <input type="text" id="event" placeholder="Event">
-        <input type="text" id="site" placeholder="Site">
-        <input type="text" id="date" placeholder="Date (YYYY.MM.DD)">
-        <input type="text" id="round" placeholder="Round">
-        <input type="text" id="white" placeholder="White">
-        <input type="text" id="black" placeholder="Black">
-        <input type="text" id="result" placeholder="Result (e.g. 1-0)">
-        <textarea id="moves" rows="10" placeholder="Enter moves here..."></textarea>
-        <button type="button" onclick="generatePGN()">Generate PGN</button>
-        </form>
+<head>
+    <meta charset="UTF-8">
+    <title>PGN Maker</title>
 
-        <h2>PGN Output</h2>
-        <textarea id="output" rows="12" readonly></textarea>
-        <button onclick="copyPGN()">Copy</button>
-        <button onclick="downloadPGN()">Download</button>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='chessboardjs-1.0.0/css/chessboard-1.0.0.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <!-- <script src="{{ url_for('static', filename='chessboardjs-1.0.0/js/chessboard-1.0.0.min.js') }}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    <script src="{{ url_for('static', filename='board.js') }}"></script>
+</head>
+<body>
+  <div class="pgn-maker-container">
+
+    <!-- Main Split -->
+    <div class="main-section">
+      <div class="text-input">
+        <h3>Type Moves</h3>
+          <div class="meta-inputs">
+            <label>Event: <input type="text" id="event" placeholder="Casual Game"></label>
+            <label>Site: <input type="text" id="site" placeholder="Online"></label>
+            <label>Date: <input type="text" id="date" placeholder="01/09/2025"></label>
+            <label>Round: <input type="text" id="round" placeholder="1"></label>
+            <label>White: <input type="text" id="white" placeholder="White Player"></label>
+            <label>Black: <input type="text" id="black" placeholder="Black Player"></label>
+            <label>Result: 
+                <select id="result">
+                <option value="*">*</option>
+                <option value="1-0">1-0</option>
+                <option value="0-1">0-1</option>
+                <option value="0.5-0.5">1/2-1/2</option>
+                </select>
+            </label>
+            </div>
+        <textarea id="moveInput" placeholder="Type moves here..."></textarea>
+      </div>
+
+      <!--Left Right --> 
+      <div class="board-area">
+        <h3>Chessboard</h3>
+        <div id="board" style="width: 100%; max-width: 400px;"></div>
+      </div>
+      <button>Clear</button>
     </div>
 
-    <script src="{{ url_for('static', filename='js/pgn_maker.js') }}"></script>
-    </body>
+    <!-- Bottom Output -->
+    <div class="output-section">
+      <h3>PGN Output</h3>
+      <div id="pgnOutput" class="output-box">[PGN will appear here]</div>
+      <div class="buttons">
+        <button class="copy-btn" onclick="copyPGN()">Copy</button>
+        <button class="download-btn" onclick="downloadPGN()">Download</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
+  <script>
+    const board = Chessboard('board', { draggable: true, dropOffBoard: 'snapback' });
+
+    function copyPGN() {
+      const pgn = document.getElementById("pgnOutput").innerText;
+      navigator.clipboard.writeText(pgn);
+      alert("PGN copied to clipboard!");
+    }
+
+    function downloadPGN() {
+      const pgn = document.getElementById("pgnOutput").innerText;
+      const blob = new Blob([pgn], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "game.pgn";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
 </html>
