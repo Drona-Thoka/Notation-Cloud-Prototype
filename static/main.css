@@ -4303,4 +4303,36 @@ input, select, textarea {
 
     .copy-btn:hover { background: #45a049; }
     .download-btn:hover { background: #1976d2; }
-  
+	
+	.warning-bubble {
+		position: absolute;
+		background: #ff6b6b;
+		color: white;
+		padding: 8px 12px;
+		border-radius: 6px;
+		font-size: 12px;
+		font-weight: 500;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+		z-index: 1000;
+		opacity: 0;
+		transform: translateY(-5px);
+		transition: all 0.2s ease;
+		pointer-events: none;
+		white-space: nowrap;
+	}
+
+	.warning-bubble.show {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	.warning-bubble::after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		margin-left: -5px;
+		border-width: 5px;
+		border-style: solid;
+		border-color: #ff6b6b transparent transparent transparent;
+	}
