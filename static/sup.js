@@ -235,9 +235,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+/*
 function openPgnMaker()
 {
   window.open('/pgn-maker', 'PGNMakerWindow', 'width=800,height=600,resizable=yes')
   
 
+}
+*/
+
+function openPgnMaker()
+{
+      window.open(
+        'https://lichess.org/analysis/standard#0',
+        'LichessAnalysis',
+        'width=900,height=700,top=100,left=100,resizable=yes,scrollbars=yes'
+      );
+  
 }

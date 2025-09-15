@@ -44,6 +44,39 @@ window.addEventListener('load', function() {
 
 });
 
+// Add this near the top, after your existing game instance
+let validationGame = new Chess(); // Separate game instance for validation
+
+// Add this new function
+function validateMoves(moveText) {
+    // Reset to starting position
+    validationGame.reset();
+    
+    if (!moveText.trim()) return true; // Empty is valid
+    
+    const lines = moveText.split('\n');
+    
+    for (const line of lines) {
+        const cleanLine = line.replace(/^\d+\.\s*/, '').trim(); // Remove "1. " 
+        if (!cleanLine) continue;
+        
+        const moves = cleanLine.split(/\s+/).filter(m => m.length > 0);
+        
+        for (const move of moves) {
+            try {
+                const result = validationGame.move(move);
+                if (!result) {
+                    return false; // Invalid move
+                }
+            } catch (e) {
+                return false; // Parse error
+            }
+        }
+    }
+    
+    return true; // All moves valid
+}
+
 function showWarningBubble(element, message) {
     const existingBubble = document.querySelector('.warning-bubble');
     if (existingBubble) existingBubble.remove();
@@ -77,7 +110,22 @@ function updatePGN() {
     const result = document.getElementById('result').value;
     
     // Get the moves
+    // In your updatePGN function, add this after getting the moves:
     const moves = document.getElementById('moveInput').value || '';
+    const shouldValidate = moves.endsWith(' ') || moves.endsWith('\n') || moves.trim().length === 0;
+
+    if (shouldValidate) {
+        const isValid = validateMoves(moves);
+        console.log('Moves are valid:', isValid);
+        
+        if (isValid == false){
+            const moveInput = document.getElementById('moveInput');
+            showWarningBubble(moveInput, "Please enter legal moves");
+            return;
+        }
+    }
+
+// Rest of your existing updatePGN code stays the same...
     
     // Build the PGN
     let pgn = `[Event "${event}"]
@@ -124,6 +172,18 @@ function setupAutoNumbering() {
                 // Show simple warning bubble
                 showWarningBubble(this, "Complete the move pair first");
                 return; // Don't allow Enter
+            }
+
+            if (moveCount > 2){
+                showWarningBubble(this, "Only 1 move per color (2 total)")
+                return;
+            } 
+            
+            const currentLineText = getCurrentMoveNumber(currentLine) + '. ' + currentLine.replace(/^\d+\.\s*/, '');
+            const isValid = validateMoves(currentLineText);
+            if (!isValid) {
+                showWarningBubble(this, "Current line has invalid moves");
+                return;
             }
             
             // Both moves present, start new line with next number
