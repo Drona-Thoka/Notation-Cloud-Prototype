@@ -169,6 +169,6 @@ def delete_game():
         return "Failed to delete game", 500
     
 
-# @app.route("/pgn-maker")
-# def pgn_maker():
-#     return render_template("pgn_maker.html")
+@app.route("/pgn-maker")
+def pgn_maker():
+    return render_template("pgn_maker.html")

@@ -235,15 +235,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-/*
+
 function openPgnMaker()
 {
   window.open('/pgn-maker', 'PGNMakerWindow', 'width=800,height=600,resizable=yes')
-  
-
 }
-*/
 
+/*
 function openPgnMaker()
 {
       window.open(
@@ -253,3 +251,4 @@ function openPgnMaker()
       );
   
 }
+*/
