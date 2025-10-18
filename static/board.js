@@ -149,6 +149,63 @@ ${moves}`;
     document.getElementById('pgnOutput').textContent = pgn;
 }
 
+// == Copy Button == 
+document.addEventListener('DOMContentLoaded', function() {
+    const copyBtn = document.getElementById('copy-btn');
+    const pgnOutput = document.getElementById('pgnOutput');
+
+    copyBtn.addEventListener('click', async function() {
+        const pgn = pgnOutput.textContent.trim();
+
+        if (!pgn) {
+            showWarningBubble(copyBtn, "No PGN to copy!");
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(pgn);
+            showWarningBubble(copyBtn, "PGN copied!");
+        } catch (err) {
+            console.error("Clipboard copy failed:", err);
+            showWarningBubble(copyBtn, "Copy failed — check permissions");
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function(){
+    downloadBtn = document.getElementById("download-btn");
+
+    downloadBtn.addEventListener('click', function(){
+        const pgn = document.getElementById('pgnOutput').textContent.trim();
+
+        if (!pgn) {
+            showWarningBubble(downloadBtn, "No PGN to download!");
+            return;
+        }
+
+        // Create a blob (text file)
+        const blob = new Blob([pgn], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+
+        // Create a temporary link and trigger click
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'game.pgn'; // default filename
+        document.body.appendChild(a);
+        a.click();
+
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+
+        // Feedback
+        showWarningBubble(downloadBtn, "PGN downloaded!");
+    });
+
+});
+
 // Auto-numbering when Enter is pressed
 function setupAutoNumbering() {
     const moveInput = document.getElementById('moveInput');
