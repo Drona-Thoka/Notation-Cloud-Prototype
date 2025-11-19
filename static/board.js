@@ -2,28 +2,28 @@ window.addEventListener('load', function() {
     // Assuming chessboard.js and chess.js are loaded
     const boardElement = document.getElementById('myBoard');
     if (!boardElement) {
-        alert("myBoard element not found!");
+        //alert("myBoard element not found!");
         return;
     }
 
     if (typeof Chess === 'undefined') {
-        alert("Chess.js not loaded!");
+        //alert("Chess.js not loaded!");
         return;
     }
     if (typeof Chessboard === 'undefined') {
-        alert("Chessboard.js not loaded!");
+        //alert("Chessboard.js not loaded!");
         return;
     }
 
     const game = new Chess();
-    //alert("game initialized : " + game)
+    ////alert("game initialized : " + game)
 
     const board = ChessBoard('myBoard', {
         draggable: true,
         position: 'start',
         onDrop: onDrop,
     });
-    alert("board initialized : " + board);
+    //alert("board initialized : " + board);
 
 
     function onDrop(source, target) {
@@ -46,34 +46,36 @@ window.addEventListener('load', function() {
 
 // Add this near the top, after your existing game instance
 let validationGame = new Chess(); // Separate game instance for validation
+// validationGame.reset();
 
 // Add this new function
-function validateMoves(moveText) {
+function validateMoves(line) {
     // Reset to starting position
-    validationGame.reset();
+    const cleanLine = line.replace(/^\d+\.\s*/, '').trim(); // Remove "1. " 
+    //alert("Cleaned move: " + cleanLine);
     
-    if (!moveText.trim()) return true; // Empty is valid
-    
-    const lines = moveText.split('\n');
-    
-    for (const line of lines) {
-        const cleanLine = line.replace(/^\d+\.\s*/, '').trim(); // Remove "1. " 
-        if (!cleanLine) continue;
-        
-        const moves = cleanLine.split(/\s+/).filter(m => m.length > 0);
-        
-        for (const move of moves) {
-            try {
-                const result = validationGame.move(move);
-                if (!result) {
-                    return false; // Invalid move
-                }
-            } catch (e) {
-                return false; // Parse error
-            }
-        }
+    if (!cleanLine) {
+        return false;
     }
     
+    const moves = cleanLine.split(/\s+/).filter(m => m.length > 0);
+    //alert("Moves" + moves);
+
+    for (const move of moves) {
+        try {
+            //alert("move: " + move)
+            const result = validationGame.move(move);
+            //alert("result" + result);
+            if (!result) {
+                return false; // Invalid move
+            }
+        } catch (e) {
+            //alert("catched" + e);
+            return false; // Parse error
+        }
+    }
+
+    //alert("Sucess Before validate return");
     return true; // All moves valid
 }
 
@@ -112,18 +114,18 @@ function updatePGN() {
     // Get the moves
     // In your updatePGN function, add this after getting the moves:
     const moves = document.getElementById('moveInput').value || '';
-    const shouldValidate = moves.endsWith(' ') || moves.endsWith('\n') || moves.trim().length === 0;
+    // const shouldValidate = moves.endsWith(' ') || moves.endsWith('\n') || moves.trim().length === 0;
 
-    if (shouldValidate) {
-        const isValid = validateMoves(moves);
-        console.log('Moves are valid:', isValid);
+    // if (shouldValidate) {
+    //     const isValid = validateMoves(moves);
+    //     console.log('Moves are valid:', isValid);
         
-        if (isValid == false){
-            const moveInput = document.getElementById('moveInput');
-            showWarningBubble(moveInput, "Please enter legal moves");
-            return;
-        }
-    }
+    //     if (isValid == false){
+    //         const moveInput = document.getElementById('moveInput');
+    //         showWarningBubble(moveInput, "Please enter legal moves");
+    //         return;
+    //     }
+    // }
 
 // Rest of your existing updatePGN code stays the same...
     
