@@ -1,4 +1,4 @@
-window.addEventListener('load', function() {
+window.addEventListener("load", function() {
     // Assuming chessboard.js and chess.js are loaded
     const boardElement = document.getElementById('myBoard');
     if (!boardElement) {
@@ -41,43 +41,50 @@ window.addEventListener('load', function() {
     board.on('change', function() {
         board.position(game.fen());
     });
-
 });
 
-// Add this near the top, after your existing game instance
 let validationGame = new Chess(); // Separate game instance for validation
-// validationGame.reset();
 
-// Add this new function
-function validateMoves(line) {
-    // Reset to starting position
-    const cleanLine = line.replace(/^\d+\.\s*/, '').trim(); // Remove "1. " 
-    //alert("Cleaned move: " + cleanLine);
-    
-    if (!cleanLine) {
-        return false;
-    }
-    
-    const moves = cleanLine.split(/\s+/).filter(m => m.length > 0);
-    //alert("Moves" + moves);
-
-    for (const move of moves) {
-        try {
-            //alert("move: " + move)
-            const result = validationGame.move(move);
-            //alert("result" + result);
-            if (!result) {
-                return false; // Invalid move
-            }
-        } catch (e) {
-            //alert("catched" + e);
-            return false; // Parse error
-        }
-    }
-
-    //alert("Sucess Before validate return");
-    return true; // All moves valid
+function createMoveString(pgn){
+        return pgn.replace(/\d+\./g, '').trim().split(/\s+/).filter(Boolean);
 }
+
+function validateMoves(pgn){
+    validationGame.reset();
+    const moves = createMoveString(pgn);
+
+    for(let i = 0; i < moves.length; i++){
+
+        try{        
+            const result = validationGame.move(moves[i], {sloppy: true});
+            if(!result){
+                return {
+                    valid: false,
+                    moveIndex: i,  
+                    move: moves[i],
+                    reason: "illegal_move"
+                }
+            }
+        }
+        catch (e){
+            return {
+                valid: false, 
+                moveIndex: i,
+                move: moves[i],
+                reason: "wrong_text_input"
+            }
+        }
+
+    }  
+
+    return {
+        valid: true, 
+        moveIndex: null,
+        move: null,
+        reason: null
+    }
+
+};
 
 function showWarningBubble(element, message) {
     const existingBubble = document.querySelector('.warning-bubble');
@@ -100,79 +107,6 @@ function showWarningBubble(element, message) {
     }, 2000);
 }
 
-// Simple PGN Live Update
-function updatePGN() {
-    // Get all the form values (use placeholder text if empty)
-    const event = document.getElementById('event').value || document.getElementById('event').placeholder;
-    const site = document.getElementById('site').value || document.getElementById('site').placeholder;
-    const date = document.getElementById('date').value || document.getElementById('date').placeholder;
-    const round = document.getElementById('round').value || document.getElementById('round').placeholder;
-    const white = document.getElementById('white').value || document.getElementById('white').placeholder;
-    const black = document.getElementById('black').value || document.getElementById('black').placeholder;
-    const result = document.getElementById('result').value;
-    
-    // Get the moves
-    // In your updatePGN function, add this after getting the moves:
-    const moves = document.getElementById('moveInput').value || '';
-    // const shouldValidate = moves.endsWith(' ') || moves.endsWith('\n') || moves.trim().length === 0;
-
-    // if (shouldValidate) {
-    //     const isValid = validateMoves(moves);
-    //     console.log('Moves are valid:', isValid);
-        
-    //     if (isValid == false){
-    //         const moveInput = document.getElementById('moveInput');
-    //         showWarningBubble(moveInput, "Please enter legal moves");
-    //         return;
-    //     }
-    // }
-
-// Rest of your existing updatePGN code stays the same...
-    
-    // Build the PGN
-    let pgn = `[Event "${event}"]
-[Site "${site}"]
-[Date "${date}"]
-[Round "${round}"]
-[White "${white}"]
-[Black "${black}"]
-[Result "${result}"]
-
-${moves}`;
-    
-    // If there are moves, add the result at the end
-    if (moves.trim()) {
-        pgn += ` ${result}`;
-    } else {
-        pgn += result;
-    }
-    
-    // Put it in the output
-    document.getElementById('pgnOutput').textContent = pgn;
-}
-
-// == Copy Button == 
-document.addEventListener('DOMContentLoaded', function() {
-    const copyBtn = document.getElementById('copy-btn');
-    const pgnOutput = document.getElementById('pgnOutput');
-
-    copyBtn.addEventListener('click', async function() {
-        const pgn = pgnOutput.textContent.trim();
-
-        if (!pgn) {
-            showWarningBubble(copyBtn, "No PGN to copy!");
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(pgn);
-            showWarningBubble(copyBtn, "PGN copied!");
-        } catch (err) {
-            console.error("Clipboard copy failed:", err);
-            showWarningBubble(copyBtn, "Copy failed — check permissions");
-        }
-    });
-});
 
 document.addEventListener('DOMContentLoaded', function(){
     downloadBtn = document.getElementById("download-btn");
@@ -208,95 +142,26 @@ document.addEventListener('DOMContentLoaded', function(){
 
 });
 
-// Auto-numbering when Enter is pressed
-function setupAutoNumbering() {
-    const moveInput = document.getElementById('moveInput');
-    
-    moveInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // Stop normal Enter behavior
-            
-            const cursorPos = moveInput.selectionStart;
-            const text = moveInput.value;
-            
-            // Get the current line
-            const textBeforeCursor = text.substring(0, cursorPos);
-            const lines = textBeforeCursor.split('\n');
-            const currentLine = lines[lines.length - 1];
-            
-            // Check if current line has both moves (white and black)
-            const moveCount = countMovesInLine(currentLine);
-            
-            if (moveCount < 2) {
-                // Show simple warning bubble
-                showWarningBubble(this, "Complete the move pair first");
-                return; // Don't allow Enter
-            }
 
-            if (moveCount > 2){
-                showWarningBubble(this, "Only 1 move per color (2 total)")
-                return;
-            } 
-            
-            const currentLineText = getCurrentMoveNumber(currentLine) + '. ' + currentLine.replace(/^\d+\.\s*/, '');
-            const isValid = validateMoves(currentLineText);
-            if (!isValid) {
-                showWarningBubble(this, "Current line has invalid moves");
-                return;
-            }
-            
-            // Both moves present, start new line with next number
-            const nextMoveNumber = getNextMoveNumber(text);
-            const newText = text.substring(0, cursorPos) + '\n' + nextMoveNumber + '. ' + text.substring(cursorPos);
-            
-            moveInput.value = newText;
-            
-            // Set cursor position after the new move number
-            const newCursorPos = cursorPos + ('\n' + nextMoveNumber + '. ').length;
-            moveInput.setSelectionRange(newCursorPos, newCursorPos);
-            
-            // Update PGN output
-            updatePGN();
+// == Copy Button == 
+document.addEventListener('DOMContentLoaded', function() {
+    const copyBtn = document.getElementById('copy-btn');
+    const pgnOutput = document.getElementById('pgnOutput');
+
+    copyBtn.addEventListener('click', async function() {
+        const pgn = pgnOutput.textContent.trim();
+
+        if (!pgn) {
+            showWarningBubble(copyBtn, "No PGN to copy!");
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(pgn);
+            showWarningBubble(copyBtn, "PGN copied!");
+        } catch (err) {
+            console.error("Clipboard copy failed:", err);
+            showWarningBubble(copyBtn, "Copy failed — check permissions");
         }
     });
-}
-
-function countMovesInLine(line) {
-    // Remove move number (like "1. ") then count remaining moves
-    const withoutNumber = line.replace(/^\d+\.\s*/, '');
-    if (!withoutNumber.trim()) return 0;
-    
-    // Split by spaces and count valid moves
-    const tokens = withoutNumber.trim().split(/\s+/);
-    return tokens.filter(token => token.length > 0).length;
-}
-
-function getCurrentMoveNumber(line) {
-    const match = line.match(/^(\d+)\./);
-    return match ? parseInt(match[1]) : 1;
-}
-
-function getNextMoveNumber(text) {
-    // Find the highest move number in the text
-    const matches = text.match(/(\d+)\./g);
-    if (!matches) return 1;
-    
-    const numbers = matches.map(match => parseInt(match.replace('.', '')));
-    return Math.max(...numbers) + 1;
-}
-
-// Listen for changes on ALL inputs
-document.addEventListener('DOMContentLoaded', function() {
-    setupAutoNumbering();
-
-    const inputs = ['event', 'site', 'date', 'round', 'white', 'black', 'result', 'moveInput'];
-    
-    inputs.forEach(id => {
-        const element = document.getElementById(id);
-        element.addEventListener('input', updatePGN);
-    });
-    
-    // Update once when page loads
-    updatePGN();
 });
-
