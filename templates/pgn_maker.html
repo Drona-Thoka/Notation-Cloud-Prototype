@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" onerror="console.error('Failed to load chess.js')"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js" onerror="console.error('Failed to load chessboard.js')"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
-    <script src="{{ url_for('static', filename='board.js') }}"></script>
+    <script src="{{ url_for('static', filename='board2.js') }}"></script>
 </head>
 <body>
   <div class="pgn-maker-container">
@@ -22,7 +22,9 @@
           <div class="meta-inputs">
             <label>Event: <input type="text" id="event" placeholder="Casual Game"></label>
             <label>Site: <input type="text" id="site" placeholder="Online"></label>
-            <label>Date: <input type="text" id="date" placeholder="01/09/2025"></label>
+            <label>Date: <input type="date" id="date" class="dateUpload" style="color:black;" placeholder="Date: MM/DD/YY"></label>
+            <!--<input id="dateUpload" name="dateUpload" class="dateUpload" placeholder="Date: MM/DD/YY" type="date" style="color:black;"> --> 
+
             <label>Round: <input type="text" id="round" placeholder="1"></label>
             <label>White: <input type="text" id="white" placeholder="White Player"></label>
             <label>Black: <input type="text" id="black" placeholder="Black Player"></label>
@@ -48,8 +50,8 @@
 
     <!-- Bottom Output -->
     <div class="output-section">
-      <h3>PGN Output</h3>
-      <div id="pgnOutput" class="output-box">[PGN will appear here]</div>
+      <!-- <h3>PGN Output</h3>
+      <div id="pgnOutput" class="output-box">[PGN will appear here]</div> -->
       <div class="buttons">
         <button class="copy-btn" id="copy-btn" onclick="copyPGN()">Copy</button>
         <button class="download-btn" id = "download-btn" onclick="downloadPGN()">Download</button>

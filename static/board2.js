@@ -44,40 +44,59 @@ window.addEventListener('load', function() {
 
 });
 
-// Add this near the top, after your existing game instance
 let validationGame = new Chess(); // Separate game instance for validation
-// validationGame.reset();
 
-// Add this new function
-function validateMoves(line) {
-    // Reset to starting position
-    const cleanLine = line.replace(/^\d+\.\s*/, '').trim(); // Remove "1. " 
-    //alert("Cleaned move: " + cleanLine);
-    
-    if (!cleanLine) {
-        return false;
-    }
-    
-    const moves = cleanLine.split(/\s+/).filter(m => m.length > 0);
-    //alert("Moves" + moves);
+function createMoveMatrix(pgn){
+    return pgn.replace(/\d+\./g, '').trim().split(/\r+/).filter(Boolean);
+}
 
-    for (const move of moves) {
-        try {
-            //alert("move: " + move)
-            const result = validationGame.move(move);
-            //alert("result" + result);
-            if (!result) {
-                return false; // Invalid move
+function createMoveArray(pgn) {
+    return pgn.replace(/\d+\./g, '').trim().split(/\s+/).filter(Boolean);
+}
+function validateMoves(pgn) {
+    alert("validateMoves->before game reset");
+    validationGame.reset();
+    alert("validateMoves->before move matrix");
+    const moveRows = createMoveMatrix(pgn);
+    
+    for(let i = 0; i < moveRows.length; i++){
+        alert("validateMoves->before move array");
+        const moves = createMoveArray(moveRows[i]);
+        alert("validateMoves->after move array");
+    
+        for (let j = 0; j < moves.length; j++) {
+            try {
+                const result = validationGame.move(moves[j]);
+                alert("validateMoves->after validation game");
+                if (!result) {
+                    return {
+                        valid: false,
+                        moveRow: i + 1,
+                        moveNumber: j, 
+                        move: moves[j],
+                        reason: "illegal_move"
+                    }
+                }
+            } catch (e) {
+                return {
+                    valid: false,
+                    moveRow: i + 1,
+                    moveNumber: j, 
+                    move: moves[j],
+                    reason: "wrong_text_input"
+                }
             }
-        } catch (e) {
-            //alert("catched" + e);
-            return false; // Parse error
         }
     }
+    return {
+        valid: true,
+        moveRow: 0,
+        moveNumber: 0, 
+        move: "",
+        reason: ""
+    }
+};
 
-    //alert("Sucess Before validate return");
-    return true; // All moves valid
-}
 
 function showWarningBubble(element, message) {
     const existingBubble = document.querySelector('.warning-bubble');
@@ -101,7 +120,7 @@ function showWarningBubble(element, message) {
 }
 
 // Simple PGN Live Update
-function updatePGN() {
+function collectPGN() {
     // Get all the form values (use placeholder text if empty)
     const event = document.getElementById('event').value || document.getElementById('event').placeholder;
     const site = document.getElementById('site').value || document.getElementById('site').placeholder;
@@ -110,27 +129,14 @@ function updatePGN() {
     const white = document.getElementById('white').value || document.getElementById('white').placeholder;
     const black = document.getElementById('black').value || document.getElementById('black').placeholder;
     const result = document.getElementById('result').value;
-    
+    alert("Data collected");
     // Get the moves
-    // In your updatePGN function, add this after getting the moves:
-    const moves = document.getElementById('moveInput').value || '';
-    // const shouldValidate = moves.endsWith(' ') || moves.endsWith('\n') || moves.trim().length === 0;
-
-    // if (shouldValidate) {
-    //     const isValid = validateMoves(moves);
-    //     console.log('Moves are valid:', isValid);
-        
-    //     if (isValid == false){
-    //         const moveInput = document.getElementById('moveInput');
-    //         showWarningBubble(moveInput, "Please enter legal moves");
-    //         return;
-    //     }
-    // }
-
-// Rest of your existing updatePGN code stays the same...
+    const moveStr = document.getElementById('moveInput').value || '';
+    alert("Moves collected");
     
     // Build the PGN
-    let pgn = `[Event "${event}"]
+    let pgn = 
+`[Event "${event}"]
 [Site "${site}"]
 [Date "${date}"]
 [Round "${round}"]
@@ -138,17 +144,14 @@ function updatePGN() {
 [Black "${black}"]
 [Result "${result}"]
 
-${moves}`;
+${moveStr}`;
     
+    alert("PGn string built");
     // If there are moves, add the result at the end
-    if (moves.trim()) {
-        pgn += ` ${result}`;
-    } else {
-        pgn += result;
-    }
     
+    return {pgn: pgn, result: result, moveStr: moveStr};
     // Put it in the output
-    document.getElementById('pgnOutput').textContent = pgn;
+    //document.getElementById('pgnOutput').textContent = pgn;
 }
 
 // == Copy Button == 
@@ -174,11 +177,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-document.addEventListener('DOMContentLoaded', function(){
+//Download
+document.addEventListener('DOMContentLoaded', function() {
     downloadBtn = document.getElementById("download-btn");
 
     downloadBtn.addEventListener('click', function(){
-        const pgn = document.getElementById('pgnOutput').textContent.trim();
+        console.log("click event listener is called :");
+        alert("click event listener is called :");
+        const pgn = collectPGN();
+        alert("Movestr:" + pgn.moveStr);
+        // == New code == 
+        let valid = validateMoves(pgn.moveStr);
+        if(!valid.valid)
+        {
+            alert("invalid input found");
+            return;
+        }
+
 
         if (!pgn) {
             showWarningBubble(downloadBtn, "No PGN to download!");
@@ -186,8 +201,11 @@ document.addEventListener('DOMContentLoaded', function(){
         }
 
         // Create a blob (text file)
-        const blob = new Blob([pgn], { type: 'text/plain' });
+        alert("Before Blob");
+        const blob = new Blob([pgn.pgn + " " + pgn.result], { type: 'text/plain' });
+        alert("After Blob:");
         const url = URL.createObjectURL(blob);
+        alert("After URL:");
 
         // Create a temporary link and trigger click
         const a = document.createElement('a');
@@ -195,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function(){
         a.download = 'game.pgn'; // default filename
         document.body.appendChild(a);
         a.click();
+        alert("After a.click:");
 
         // Cleanup
         setTimeout(() => {
@@ -202,10 +221,12 @@ document.addEventListener('DOMContentLoaded', function(){
             URL.revokeObjectURL(url);
         }, 100);
 
+        console.log("PGN downloaded!");
+        alert("PGN downloaded!");
         // Feedback
         showWarningBubble(downloadBtn, "PGN downloaded!");
-    });
 
+    });
 });
 
 // Auto-numbering when Enter is pressed
@@ -214,19 +235,21 @@ function setupAutoNumbering() {
     
     moveInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Stop normal Enter behavior
+            //alert("before preventDefault");
+            // e.preventDefault(); // Stop normal Enter behavior
+            // //alert("after preventDefault");
             
-            const cursorPos = moveInput.selectionStart;
+            // const cursorPos = moveInput.selectionStart;
             const text = moveInput.value;
             
-            // Get the current line
-            const textBeforeCursor = text.substring(0, cursorPos);
-            const lines = textBeforeCursor.split('\n');
+            // // Get the current line
+            // const textBeforeCursor = text.substring(0, cursorPos);
+            const lines = text.split('\n');
             const currentLine = lines[lines.length - 1];
             
             // Check if current line has both moves (white and black)
             const moveCount = countMovesInLine(currentLine);
-            
+            //alert("moveCount:" + moveCount);
             if (moveCount < 2) {
                 // Show simple warning bubble
                 showWarningBubble(this, "Complete the move pair first");
@@ -255,8 +278,6 @@ function setupAutoNumbering() {
             const newCursorPos = cursorPos + ('\n' + nextMoveNumber + '. ').length;
             moveInput.setSelectionRange(newCursorPos, newCursorPos);
             
-            // Update PGN output
-            updatePGN();
         }
     });
 }
@@ -288,15 +309,5 @@ function getNextMoveNumber(text) {
 // Listen for changes on ALL inputs
 document.addEventListener('DOMContentLoaded', function() {
     setupAutoNumbering();
-
-    const inputs = ['event', 'site', 'date', 'round', 'white', 'black', 'result', 'moveInput'];
-    
-    inputs.forEach(id => {
-        const element = document.getElementById(id);
-        element.addEventListener('input', updatePGN);
-    });
-    
-    // Update once when page loads
-    updatePGN();
 });
 
