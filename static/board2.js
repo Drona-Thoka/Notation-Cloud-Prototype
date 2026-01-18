@@ -16,7 +16,7 @@ window.addEventListener('load', function() {
     }
 
     const game = new Chess();
-    ////alert("game initialized : " + game)
+    //alert("game initialized : " + game)
 
     const board = ChessBoard('myBoard', {
         draggable: true,
@@ -54,20 +54,20 @@ function createMoveArray(pgn) {
     return pgn.replace(/\d+\./g, '').trim().split(/\s+/).filter(Boolean);
 }
 function validateMoves(pgn) {
-    alert("validateMoves->before game reset");
+    //alert("validateMoves->before game reset");
     validationGame.reset();
-    alert("validateMoves->before move matrix");
+    //alert("validateMoves->before move matrix");
     const moveRows = createMoveMatrix(pgn);
     
     for(let i = 0; i < moveRows.length; i++){
-        alert("validateMoves->before move array");
+        //alert("validateMoves->before move array");
         const moves = createMoveArray(moveRows[i]);
-        alert("validateMoves->after move array");
+        //alert("validateMoves->after move array");
     
         for (let j = 0; j < moves.length; j++) {
             try {
                 const result = validationGame.move(moves[j]);
-                alert("validateMoves->after validation game");
+                //alert("validateMoves->after validation game");
                 if (!result) {
                     return {
                         valid: false,
@@ -129,10 +129,10 @@ function collectPGN() {
     const white = document.getElementById('white').value || document.getElementById('white').placeholder;
     const black = document.getElementById('black').value || document.getElementById('black').placeholder;
     const result = document.getElementById('result').value;
-    alert("Data collected");
+    //alert("Data collected");
     // Get the moves
     const moveStr = document.getElementById('moveInput').value || '';
-    alert("Moves collected");
+    //alert("Moves collected");
     
     // Build the PGN
     let pgn = 
@@ -146,7 +146,7 @@ function collectPGN() {
 
 ${moveStr}`;
     
-    alert("PGn string built");
+    //alert("PGn string built");
     // If there are moves, add the result at the end
     
     return {pgn: pgn, result: result, moveStr: moveStr};
@@ -183,9 +183,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     downloadBtn.addEventListener('click', function(){
         console.log("click event listener is called :");
-        alert("click event listener is called :");
+        //alert("click event listener is called :");
         const pgn = collectPGN();
-        alert("Movestr:" + pgn.moveStr);
+        //alert("Movestr:" + pgn.moveStr);
         // == New code == 
         let valid = validateMoves(pgn.moveStr);
         if(!valid.valid)
@@ -201,11 +201,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Create a blob (text file)
-        alert("Before Blob");
+        //alert("Before Blob");
         const blob = new Blob([pgn.pgn + " " + pgn.result], { type: 'text/plain' });
-        alert("After Blob:");
+        //alert("After Blob:");
         const url = URL.createObjectURL(blob);
-        alert("After URL:");
+        //alert("After URL:");
 
         // Create a temporary link and trigger click
         const a = document.createElement('a');
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
         a.download = 'game.pgn'; // default filename
         document.body.appendChild(a);
         a.click();
-        alert("After a.click:");
+        //alert("After a.click:");
 
         // Cleanup
         setTimeout(() => {
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
 
         console.log("PGN downloaded!");
-        alert("PGN downloaded!");
+        //alert("PGN downloaded!");
         // Feedback
         showWarningBubble(downloadBtn, "PGN downloaded!");
 
