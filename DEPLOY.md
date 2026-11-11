@@ -5,7 +5,7 @@ Replace `USERNAME` with your PythonAnywhere username and `YOUR_TEAM_CODE` with t
 ## 1. Get the code (Bash console)
 
 ```bash
-git clone -b team-code-folders-viewer https://github.com/CyberFlare7408/Notation-Cloud-Prototype.git
+git clone -b team-code-folders-viewer https://github.com/Drona-Thoka/Notation-Cloud-Prototype.git
 cd Notation-Cloud-Prototype
 mkvirtualenv wvchess --python=python3.13
 pip install -r requirements.txt
