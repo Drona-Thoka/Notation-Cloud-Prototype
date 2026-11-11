@@ -4,24 +4,26 @@
 			<title>WV-Notation-Cloud Home</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="../static/main.css" />
-		<noscript><link rel="stylesheet" href="../static/noscript.css" /></noscript>
+		<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
+		<noscript><link rel="stylesheet" href="{{ url_for('static', filename='noscript.css') }}" /></noscript>
 	</head>
-	<body class="is-preload">
+	<body>
 
 		<!-- Page Wrapper -->
 			<div id="page-wrapper">
 
 				<!-- Header -->
 					<header id="header" class="alt">
-						<h1><a href="index.html">WVHS</a></h1>
+						<h1><a href="{{ url_for('index') }}">WVHS</a></h1>
 					</header>
 
 				<!-- Banner -->
+					<section id="banner">
 						<div class="inner">
 							<h2 style="font-size: 50px;">Waubonsie Valley Chess Team</h2>
 							<p>The website for storage and further analysis</p>
 						</div>
+					</section>
 						
 						<h3 style="text-align: center; margin-top: 2rem;">Coach Announcements & Schedule</h3>
 						<div class="announcement-box">
@@ -34,18 +36,21 @@
 									<div class="content">
 										<h2 class="major">Upload Chess Games</h2>
 										<p>Upload pictures of notation sheets (.png) or text in notation formats (PGN).</p>
-										<a href="{{ url_for('notationCloud') }}" class="special">Upload Image</a>
+										<a href="{{ url_for('notationCloud') }}" class="special">Open Notation Cloud</a>
 									</div>
 								</div>
 							</section>
+					</section>
+
 
 				<!-- Footer -->
 					<section id="footer">
 						<div class="inner">
-								<li class="icon brands fa-googleform"><a href="https://docs.google.com/forms/d/e/1FAIpQLSc5szMg0cYiIGk4Ag_sKxZNtgDDBIs_xo1XF2kWLyMQdx_yMg/viewform?usp=sharing&ouid=108822357969581922978">Feedback form</a></li>
-								<li class="icon brands fa-github"><a href="https://github.com/Drona-Thoka/Notation-Cloud-Prototype">Github Repo</a></li>								
+							<ul class="contact">
+								<li class="icon solid fa-comment-dots"><a href="https://docs.google.com/forms/d/e/1FAIpQLSc5szMg0cYiIGk4Ag_sKxZNtgDDBIs_xo1XF2kWLyMQdx_yMg/viewform?usp=sharing&ouid=108822357969581922978">Feedback form</a></li>
+								<li class="icon brands fa-github"><a href="https://github.com/Drona-Thoka/Notation-Cloud-Prototype">Github Repo</a></li>
 								<li class="icon brands fa-instagram"><a href="http://instagram.com/wvhschess">instagram.com/wvhschess</a></li>
-								<li class="icon brands fa-googlesite"><a href="https://sites.google.com/ipsd.org/chessteam/home">sites.google.com/ipsd.org/chessteam/home</a></li>
+								<li class="icon solid fa-globe"><a href="https://sites.google.com/ipsd.org/chessteam/home">sites.google.com/ipsd.org/chessteam/home</a></li>
 							</ul>
 							<ul class="copyright">
 								<li>Developed by Drona Thoka & Christian Cheng, 2025</li>

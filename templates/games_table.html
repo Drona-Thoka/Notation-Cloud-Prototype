@@ -1,7 +1,9 @@
 <div class="table-wrapper">
-    <table id="searched-table" style="display: block;">
+    <table class="alt" id="searched-results">
         <thead>
             <tr>
+                <th>Title</th>
+                <th>Folder</th>
                 <th>Date</th>
                 <th>Event</th>
                 <th>Board</th>
@@ -11,11 +13,16 @@
                 <th>WV Win</th>
                 <th>PNG</th>
                 <th>PGN</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             {% for row in rows%}
             <tr data-game-id="{{ row.id }}">
+                <!--Title-->
+                <td>{{row["title"] or ""}}</td>
+                <!--Folder-->
+                {% include "folder_cell.html" %}
                 <!--Date-->
                 <td>{{row["date"]}}</td>
                 <!--Event-->
@@ -31,11 +38,13 @@
                 <!--WV WIN-->
                 <td>{{row["wv_win"]}}</td>
                 <!--PNG-->
-                <td><a href="{{ url_for('download', filename=row['png_file_name']) }}">{{row["png_file_name"]}}</a></td>
+                <td>{% if row["png_file_name"] %}<a href="{{ url_for('download', game_id=row['id'], kind='png') }}">{{row["png_file_name"]}}</a>{% else %}—{% endif %}</td>
                 <!--PGN-->
-                <td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">{{row["pgn_file_name"]}}</a></td>
-                <td><button type="button" data-id="{{ row.id }}" class="delete-button">🗑️</button></td>
+                <td>{% if row["pgn_file_name"] %}<button type="button" class="view-game button small" data-id="{{ row.id }}" title="Open on the analysis board">View</button> <a href="{{ url_for('download', game_id=row['id'], kind='pgn') }}">{{row["pgn_file_name"]}}</a>{% else %}—{% endif %}</td>
+                <td>{% if row.user_id == session.user_id or is_coach %}<button type="button" data-id="{{ row.id }}" class="delete-button small" title="Delete game">🗑️</button>{% endif %}</td>
             </tr>
+            {% else %}
+            <tr><td colspan="12">No games match.</td></tr>
             {% endfor %}
         </tbody>
     </table>

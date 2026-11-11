@@ -2,15 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
     <title>PGN Maker</title>
 
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
 
-    <!-- JS -->
+    <!-- JS (chessboard.js needs jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" onerror="console.error('Failed to load jQuery')"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" onerror="console.error('Failed to load chess.js')"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js" onerror="console.error('Failed to load chessboard.js')"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
     <script src="{{ url_for('static', filename='board2.js') }}"></script>
 </head>
 <body>
@@ -22,39 +24,37 @@
           <div class="meta-inputs">
             <label>Event: <input type="text" id="event" placeholder="Casual Game"></label>
             <label>Site: <input type="text" id="site" placeholder="Online"></label>
-            <label>Date: <input type="date" id="date" class="dateUpload" style="color:black;" placeholder="Date: MM/DD/YY"></label>
-            <!--<input id="dateUpload" name="dateUpload" class="dateUpload" placeholder="Date: MM/DD/YY" type="date" style="color:black;"> --> 
-
+            <label>Date: <input type="date" id="date" class="dateUpload"></label>
             <label>Round: <input type="text" id="round" placeholder="1"></label>
             <label>White: <input type="text" id="white" placeholder="White Player"></label>
             <label>Black: <input type="text" id="black" placeholder="Black Player"></label>
-            <label>Result: 
+            <label>Result:
                 <select id="result">
                 <option value="*">*</option>
                 <option value="1-0">1-0</option>
                 <option value="0-1">0-1</option>
-                <option value="0.5-0.5">1/2-1/2</option>
+                <option value="1/2-1/2">1/2-1/2</option>
                 </select>
             </label>
             </div>
-        <textarea id="moveInput" placeholder="Type moves here..."></textarea>
+        <textarea id="moveInput" placeholder="1. e4 e5"></textarea>
+        <p id="move-status" class="move-status"></p>
       </div>
 
-      <!--Left Right --> 
+      <!--Right: board (drag pieces or type moves) -->
       <div class="board-area">
         <h3>Chessboard</h3>
         <div id="myBoard" style="width: 100%; max-width: 400px;"></div>
       </div>
-      <button>Clear</button>
     </div>
 
     <!-- Bottom Output -->
     <div class="output-section">
-      <!-- <h3>PGN Output</h3>
-      <div id="pgnOutput" class="output-box">[PGN will appear here]</div> -->
       <div class="buttons">
-        <button class="copy-btn" id="copy-btn" onclick="copyPGN()">Copy</button>
-        <button class="download-btn" id = "download-btn" onclick="downloadPGN()">Download</button>
+        <button type="button" class="copy-btn" id="copy-btn">Copy</button>
+        <button type="button" class="download-btn" id="download-btn">Download</button>
+        <button type="button" class="attach-btn" id="attach-btn" style="display: none;">Attach to Upload</button>
+        <button type="button" id="clear-btn">Clear</button>
       </div>
     </div>
 

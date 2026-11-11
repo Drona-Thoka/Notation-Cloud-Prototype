@@ -1,116 +1,301 @@
+// PGN Maker
+// The textarea is the source of truth: moves are typed one pair per line ("1. e4 e5"),
+// validated with chess.js, and mirrored on the board. Dragging a piece appends the move.
+
+let game = null;   // chess.js game for the current (valid) moves
+let board = null;  // chessboard.js board
+
 window.addEventListener('load', function() {
-    // Assuming chessboard.js and chess.js are loaded
-    const boardElement = document.getElementById('myBoard');
-    if (!boardElement) {
-        //alert("myBoard element not found!");
+    if (typeof Chess === 'undefined' || typeof Chessboard === 'undefined') {
+        setStatus("Chess libraries failed to load. Check your internet connection.", true);
         return;
     }
 
-    if (typeof Chess === 'undefined') {
-        //alert("Chess.js not loaded!");
-        return;
-    }
-    if (typeof Chessboard === 'undefined') {
-        //alert("Chessboard.js not loaded!");
-        return;
-    }
-
-    const game = new Chess();
-    //alert("game initialized : " + game)
-
-    const board = ChessBoard('myBoard', {
+    game = new Chess();
+    board = Chessboard('myBoard', {
         draggable: true,
         position: 'start',
+        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+        onDragStart: onDragStart,
         onDrop: onDrop,
-    });
-    //alert("board initialized : " + board);
-
-
-    function onDrop(source, target) {
-        const move = game.move({
-            from: source,
-            to: target,
-            promotion: 'q' // Example: always promote to a queen
-        });
-
-        // If the move is illegal, snap the piece back
-        if (move === null) return 'snapback';
-    }
-
-    // Update the board after a successful move (e.g., for castling)
-    board.on('change', function() {
-        board.position(game.fen());
+        onSnapEnd: function() { board.position(game.fen()); } // castling, en passant, promotion
     });
 
+    const moveInput = document.getElementById('moveInput');
+    if (moveInput.value.trim() === '') moveInput.value = '1. ';
+    moveInput.addEventListener('input', syncBoard);
+    moveInput.addEventListener('keydown', onMoveInputKeydown);
+
+    document.getElementById('copy-btn').addEventListener('click', copyPGN);
+    document.getElementById('download-btn').addEventListener('click', downloadPGN);
+    document.getElementById('attach-btn').addEventListener('click', attachPGN);
+    document.getElementById('clear-btn').addEventListener('click', clearMoves);
+
+    prefillFromUploadForm();
+    syncBoard();
 });
 
-let validationGame = new Chess(); // Separate game instance for validation
+// == Parsing / validation ==
 
-function createMoveMatrix(pgn){
-    return pgn.replace(/\d+\./g, '').trim().split(/\r+/).filter(Boolean);
+// Strip move numbers, results, comments and annotations, leaving SAN tokens
+function tokenizeMoves(text) {
+    return text
+        .replace(/\{[^}]*\}/g, ' ')                    // {comments}
+        .replace(/\d+\.(\.\.)?/g, ' ')                 // 1.  1...
+        .replace(/(1-0|0-1|1\/2-1\/2|0\.5-0\.5|\*)/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(token => token.replace(/[!?]+$/, '').replace(/^0-0-0/, 'O-O-O').replace(/^0-0/, 'O-O'));
 }
 
-function createMoveArray(pgn) {
-    return pgn.replace(/\d+\./g, '').trim().split(/\s+/).filter(Boolean);
-}
-function validateMoves(pgn) {
-    //alert("validateMoves->before game reset");
-    validationGame.reset();
-    //alert("validateMoves->before move matrix");
-    const moveRows = createMoveMatrix(pgn);
-    
-    for(let i = 0; i < moveRows.length; i++){
-        //alert("validateMoves->before move array");
-        const moves = createMoveArray(moveRows[i]);
-        //alert("validateMoves->after move array");
-    
-        for (let j = 0; j < moves.length; j++) {
-            try {
-                const result = validationGame.move(moves[j]);
-                //alert("validateMoves->after validation game");
-                if (!result) {
-                    return {
-                        valid: false,
-                        moveRow: i + 1,
-                        moveNumber: j, 
-                        move: moves[j],
-                        reason: "illegal_move"
-                    }
-                }
-            } catch (e) {
-                return {
-                    valid: false,
-                    moveRow: i + 1,
-                    moveNumber: j, 
-                    move: moves[j],
-                    reason: "wrong_text_input"
-                }
-            }
+// Play the typed moves on a fresh game. Returns {game, error} where error describes the first bad move
+function parseMoves(text) {
+    const parsed = new Chess();
+    const tokens = tokenizeMoves(text);
+
+    for (let i = 0; i < tokens.length; i++) {
+        if (!parsed.move(tokens[i])) {
+            const moveNumber = Math.floor(i / 2) + 1;
+            const side = (i % 2 === 0) ? "White" : "Black";
+            return { game: parsed, error: `Move ${moveNumber} (${side}): "${tokens[i]}" is not legal here` };
         }
     }
-    return {
-        valid: true,
-        moveRow: 0,
-        moveNumber: 0, 
-        move: "",
-        reason: ""
-    }
-};
+    return { game: parsed, error: null };
+}
 
+// Re-parse the textarea and update the board + status line
+function syncBoard() {
+    const result = parseMoves(document.getElementById('moveInput').value);
+    game = result.game;
+    if (board) board.position(game.fen());
+
+    if (result.error) {
+        setStatus(result.error, true);
+    } else {
+        const plies = game.history().length;
+        let msg = plies === 0 ? "No moves yet" : `${Math.ceil(plies / 2)} move(s), ${game.turn() === 'w' ? 'White' : 'Black'} to play`;
+        if (game.in_checkmate()) msg = "Checkmate!";
+        else if (game.in_draw()) msg = "Draw";
+        setStatus(msg, false);
+    }
+    return result;
+}
+
+function setStatus(message, isError) {
+    const status = document.getElementById('move-status');
+    if (!status) return;
+    status.textContent = message;
+    status.classList.toggle('error', isError);
+}
+
+// == Board dragging ==
+
+function onDragStart(source, piece) {
+    if (parseMoves(document.getElementById('moveInput').value).error) return false; // fix the text first
+    if (game.game_over()) return false;
+    if ((game.turn() === 'w' && piece.startsWith('b')) || (game.turn() === 'b' && piece.startsWith('w'))) return false;
+}
+
+function onDrop(source, target) {
+    const move = game.move({ from: source, to: target, promotion: 'q' });
+    if (move === null) return 'snapback';
+
+    appendMoveToText(move);
+    syncBoard();
+}
+
+// Add a SAN move to the end of the textarea, keeping one move pair per line
+function appendMoveToText(move) {
+    const moveInput = document.getElementById('moveInput');
+    let text = moveInput.value.replace(/\s+$/, '');
+    const moveNumber = Math.ceil(game.history().length / 2);
+
+    if (move.color === 'w') {
+        if (/^\d+\.$/.test(lastLine(text))) {
+            text += ' ' + move.san;                          // line already has "N."
+        } else {
+            text += (text ? '\n' : '') + moveNumber + '. ' + move.san;
+        }
+    } else {
+        text += ' ' + move.san;
+    }
+    moveInput.value = text;
+}
+
+function lastLine(text) {
+    const lines = text.split('\n');
+    return lines[lines.length - 1].trim();
+}
+
+// == Auto-numbering when Enter is pressed ==
+
+function onMoveInputKeydown(e) {
+    if (e.key !== 'Enter') return;
+
+    const moveInput = this;
+    // Only auto-number when typing at the end; let Enter behave normally mid-text
+    if (moveInput.selectionStart !== moveInput.value.length) return;
+
+    e.preventDefault();
+    const result = syncBoard();
+    if (result.error) {
+        showWarningBubble(moveInput, "Fix the invalid move first");
+        return;
+    }
+
+    const plies = game.history().length;
+    if (plies === 0 || plies % 2 === 1) {
+        showWarningBubble(moveInput, "Complete the move pair first");
+        return;
+    }
+
+    moveInput.value = moveInput.value.replace(/\s+$/, '') + '\n' + (plies / 2 + 1) + '. ';
+    moveInput.setSelectionRange(moveInput.value.length, moveInput.value.length);
+}
+
+// == PGN output ==
+
+function fieldOr(id, fallback) {
+    const value = document.getElementById(id).value.trim();
+    return value || fallback;
+}
+
+// Build the PGN text, or return null (after warning) if the moves are invalid
+function buildPGN(button) {
+    const result = syncBoard();
+    if (result.error) {
+        showWarningBubble(button, result.error);
+        return null;
+    }
+    if (result.game.history().length === 0) {
+        showWarningBubble(button, "No moves to export!");
+        return null;
+    }
+
+    const dateValue = document.getElementById('date').value; // YYYY-MM-DD
+    const pgnGame = result.game;
+    pgnGame.header(
+        'Event', fieldOr('event', '?'),
+        'Site', fieldOr('site', '?'),
+        'Date', dateValue ? dateValue.replace(/-/g, '.') : '????.??.??',
+        'Round', fieldOr('round', '?'),
+        'White', fieldOr('white', '?'),
+        'Black', fieldOr('black', '?'),
+        'Result', document.getElementById('result').value
+    );
+    return pgnGame.pgn({ max_width: 80, newline_char: '\n' }) + '\n';
+}
+
+function pgnFileName() {
+    const name = [fieldOr('white', 'White'), 'vs', fieldOr('black', 'Black'), document.getElementById('date').value]
+        .filter(Boolean).join('_');
+    return name.replace(/[^A-Za-z0-9_.-]+/g, '-') + '.pgn';
+}
+
+async function copyPGN() {
+    const copyBtn = document.getElementById('copy-btn');
+    const pgn = buildPGN(copyBtn);
+    if (!pgn) return;
+
+    try {
+        await navigator.clipboard.writeText(pgn);
+        showWarningBubble(copyBtn, "PGN copied!");
+    } catch (err) {
+        console.error("Clipboard copy failed:", err);
+        showWarningBubble(copyBtn, "Copy failed — check permissions");
+    }
+}
+
+function downloadPGN() {
+    const downloadBtn = document.getElementById('download-btn');
+    const pgn = buildPGN(downloadBtn);
+    if (!pgn) return;
+
+    const url = URL.createObjectURL(new Blob([pgn], { type: 'application/x-chess-pgn' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = pgnFileName();
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }, 100);
+    showWarningBubble(downloadBtn, "PGN downloaded!");
+}
+
+function clearMoves() {
+    const moveInput = document.getElementById('moveInput');
+    moveInput.value = '1. ';
+    syncBoard();
+    moveInput.focus();
+}
+
+// == Link with the upload form (when opened from the Notation Cloud page) ==
+
+function uploadForm() {
+    try {
+        if (window.opener && !window.opener.closed) return window.opener.document;
+    } catch (e) { /* different origin */ }
+    return null;
+}
+
+// Copy players/date/event already typed in the upload form, and show the attach button
+function prefillFromUploadForm() {
+    const doc = uploadForm();
+    if (!doc || !doc.getElementById('pgnUpload')) return;
+
+    const copyField = (fromId, toId, skip) => {
+        const from = doc.getElementById(fromId);
+        const to = document.getElementById(toId);
+        if (from && to && !to.value && from.value && from.value !== skip) to.value = from.value;
+    };
+    copyField('whitePlayerUpload', 'white');
+    copyField('blackPlayerUpload', 'black');
+    copyField('dateUpload', 'date');
+    copyField('eventUpload', 'event', 'Event');
+
+    const result = doc.getElementById('resultUpload');
+    if (result && result.selectedIndex > 0) {
+        document.getElementById('result').value = result.value === '0.5-0.5' ? '1/2-1/2' : result.value;
+    }
+    document.getElementById('attach-btn').style.display = '';
+}
+
+// Put the PGN straight into the upload form's PGN file input
+function attachPGN() {
+    const attachBtn = document.getElementById('attach-btn');
+    const doc = uploadForm();
+    if (!doc) {
+        showWarningBubble(attachBtn, "Upload page was closed");
+        return;
+    }
+    const pgn = buildPGN(attachBtn);
+    if (!pgn) return;
+
+    const transfer = new DataTransfer();
+    transfer.items.add(new File([pgn], pgnFileName(), { type: 'application/x-chess-pgn' }));
+    const pgnInput = doc.getElementById('pgnUpload');
+    pgnInput.files = transfer.files;
+    // Setting .files doesn't fire "change", so trigger it for the form's PGN autofill
+    pgnInput.dispatchEvent(new doc.defaultView.Event('change', { bubbles: true }));
+    showWarningBubble(attachBtn, "Attached to upload form!");
+}
 
 function showWarningBubble(element, message) {
     const existingBubble = document.querySelector('.warning-bubble');
     if (existingBubble) existingBubble.remove();
-    
+
     const bubble = document.createElement('div');
     bubble.className = 'warning-bubble';
     bubble.textContent = message;
-    
+
     const rect = element.getBoundingClientRect();
     bubble.style.left = (rect.left + rect.width / 2) + 'px';
     bubble.style.top = (rect.top - 35 + window.scrollY) + 'px';
     bubble.style.transform = 'translateX(-50%)';
-    
+
     document.body.appendChild(bubble);
     setTimeout(() => bubble.classList.add('show'), 10);
     setTimeout(() => {
@@ -118,196 +303,3 @@ function showWarningBubble(element, message) {
         setTimeout(() => bubble.remove(), 200);
     }, 2000);
 }
-
-// Simple PGN Live Update
-function collectPGN() {
-    // Get all the form values (use placeholder text if empty)
-    const event = document.getElementById('event').value || document.getElementById('event').placeholder;
-    const site = document.getElementById('site').value || document.getElementById('site').placeholder;
-    const date = document.getElementById('date').value || document.getElementById('date').placeholder;
-    const round = document.getElementById('round').value || document.getElementById('round').placeholder;
-    const white = document.getElementById('white').value || document.getElementById('white').placeholder;
-    const black = document.getElementById('black').value || document.getElementById('black').placeholder;
-    const result = document.getElementById('result').value;
-    //alert("Data collected");
-    // Get the moves
-    const moveStr = document.getElementById('moveInput').value || '';
-    //alert("Moves collected");
-    
-    // Build the PGN
-    let pgn = 
-`[Event "${event}"]
-[Site "${site}"]
-[Date "${date}"]
-[Round "${round}"]
-[White "${white}"]
-[Black "${black}"]
-[Result "${result}"]
-
-${moveStr}`;
-    
-    //alert("PGn string built");
-    // If there are moves, add the result at the end
-    
-    return {pgn: pgn, result: result, moveStr: moveStr};
-    // Put it in the output
-    //document.getElementById('pgnOutput').textContent = pgn;
-}
-
-// == Copy Button == 
-document.addEventListener('DOMContentLoaded', function() {
-    const copyBtn = document.getElementById('copy-btn');
-    const pgnOutput = document.getElementById('pgnOutput');
-
-    copyBtn.addEventListener('click', async function() {
-        const pgn = pgnOutput.textContent.trim();
-
-        if (!pgn) {
-            showWarningBubble(copyBtn, "No PGN to copy!");
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(pgn);
-            showWarningBubble(copyBtn, "PGN copied!");
-        } catch (err) {
-            console.error("Clipboard copy failed:", err);
-            showWarningBubble(copyBtn, "Copy failed — check permissions");
-        }
-    });
-});
-
-//Download
-document.addEventListener('DOMContentLoaded', function() {
-    downloadBtn = document.getElementById("download-btn");
-
-    downloadBtn.addEventListener('click', function(){
-        console.log("click event listener is called :");
-        //alert("click event listener is called :");
-        const pgn = collectPGN();
-        //alert("Movestr:" + pgn.moveStr);
-        // == New code == 
-        let valid = validateMoves(pgn.moveStr);
-        if(!valid.valid)
-        {
-            alert("invalid input found");
-            return;
-        }
-
-
-        if (!pgn) {
-            showWarningBubble(downloadBtn, "No PGN to download!");
-            return;
-        }
-
-        // Create a blob (text file)
-        //alert("Before Blob");
-        const blob = new Blob([pgn.pgn + " " + pgn.result], { type: 'text/plain' });
-        //alert("After Blob:");
-        const url = URL.createObjectURL(blob);
-        //alert("After URL:");
-
-        // Create a temporary link and trigger click
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'game.pgn'; // default filename
-        document.body.appendChild(a);
-        a.click();
-        //alert("After a.click:");
-
-        // Cleanup
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }, 100);
-
-        console.log("PGN downloaded!");
-        //alert("PGN downloaded!");
-        // Feedback
-        showWarningBubble(downloadBtn, "PGN downloaded!");
-
-    });
-});
-
-// Auto-numbering when Enter is pressed
-function setupAutoNumbering() {
-    const moveInput = document.getElementById('moveInput');
-    
-    moveInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            //alert("before preventDefault");
-            // e.preventDefault(); // Stop normal Enter behavior
-            // //alert("after preventDefault");
-            
-            // const cursorPos = moveInput.selectionStart;
-            const text = moveInput.value;
-            
-            // // Get the current line
-            // const textBeforeCursor = text.substring(0, cursorPos);
-            const lines = text.split('\n');
-            const currentLine = lines[lines.length - 1];
-            
-            // Check if current line has both moves (white and black)
-            const moveCount = countMovesInLine(currentLine);
-            //alert("moveCount:" + moveCount);
-            if (moveCount < 2) {
-                // Show simple warning bubble
-                showWarningBubble(this, "Complete the move pair first");
-                return; // Don't allow Enter
-            }
-
-            if (moveCount > 2){
-                showWarningBubble(this, "Only 1 move per color (2 total)")
-                return;
-            } 
-            
-            const currentLineText = getCurrentMoveNumber(currentLine) + '. ' + currentLine.replace(/^\d+\.\s*/, '');
-            const isValid = validateMoves(currentLineText);
-            if (!isValid) {
-                showWarningBubble(this, "Current line has invalid moves");
-                return;
-            }
-            
-            // Both moves present, start new line with next number
-            const nextMoveNumber = getNextMoveNumber(text);
-            const newText = text.substring(0, cursorPos) + '\n' + nextMoveNumber + '. ' + text.substring(cursorPos);
-            
-            moveInput.value = newText;
-            
-            // Set cursor position after the new move number
-            const newCursorPos = cursorPos + ('\n' + nextMoveNumber + '. ').length;
-            moveInput.setSelectionRange(newCursorPos, newCursorPos);
-            
-        }
-    });
-}
-
-function countMovesInLine(line) {
-    // Remove move number (like "1. ") then count remaining moves
-    const withoutNumber = line.replace(/^\d+\.\s*/, '');
-    if (!withoutNumber.trim()) return 0;
-    
-    // Split by spaces and count valid moves
-    const tokens = withoutNumber.trim().split(/\s+/);
-    return tokens.filter(token => token.length > 0).length;
-}
-
-function getCurrentMoveNumber(line) {
-    const match = line.match(/^(\d+)\./);
-    return match ? parseInt(match[1]) : 1;
-}
-
-function getNextMoveNumber(text) {
-    // Find the highest move number in the text
-    const matches = text.match(/(\d+)\./g);
-    if (!matches) return 1;
-    
-    const numbers = matches.map(match => parseInt(match.replace('.', '')));
-    return Math.max(...numbers) + 1;
-}
-
-// Listen for changes on ALL inputs
-document.addEventListener('DOMContentLoaded', function() {
-    setupAutoNumbering();
-});
-

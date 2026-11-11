@@ -1,4 +1,5 @@
-@import url(fontawesome-all.min.css);
+/* Font Awesome 5 (the theme's .icon classes expect it) */
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
 @import url("https://fonts.googleapis.com/css?family=Raleway:200,700|Source+Sans+Pro:300,600,300italic,600italic");
 
 #analysis-board {
@@ -102,7 +103,7 @@ input, select, textarea {
 
 	body {
 		background-color: #2e3141;
-		background-image: linear-gradient(to top, rgba(46, 49, 65, 0.8), rgba(46, 49, 65, 0.8)), url("../../images/bg.jpg");
+		background-image: linear-gradient(to top, rgba(46, 49, 65, 0.8), rgba(46, 49, 65, 0.8));
 		background-size: auto,
  cover;
 		background-attachment: fixed,
@@ -2181,6 +2182,7 @@ input, select, textarea {
 	input[type="password"],
 	input[type="email"],
 	input[type="tel"],
+	input[type="date"],
 	select,
 	textarea {
 		-moz-appearance: none;
@@ -2203,6 +2205,7 @@ input, select, textarea {
 		input[type="password"]:invalid,
 		input[type="email"]:invalid,
 		input[type="tel"]:invalid,
+		input[type="date"]:invalid,
 		select:invalid,
 		textarea:invalid {
 			box-shadow: none;
@@ -2212,6 +2215,7 @@ input, select, textarea {
 		input[type="password"]:focus,
 		input[type="email"]:focus,
 		input[type="tel"]:focus,
+		input[type="date"]:focus,
 		select:focus,
 		textarea:focus {
 			border-color: #5b6ba6;
@@ -2243,6 +2247,7 @@ input, select, textarea {
 	input[type="text"],
 	input[type="password"],
 	input[type="email"],
+	input[type="date"],
 	select {
 		height: 2.75em;
 	}
@@ -3468,7 +3473,7 @@ input, select, textarea {
 			#banner {
 				padding: 7em 0 8.25em 0 ;
 				background-color: #2e3141;
-				background-image: linear-gradient(to top, rgba(46, 49, 65, 0.8), rgba(46, 49, 65, 0.8)), url("../../images/bg.jpg");
+				background-image: linear-gradient(to top, rgba(46, 49, 65, 0.8), rgba(46, 49, 65, 0.8));
 				background-size: auto,
  cover;
 				background-position: center,
@@ -3580,7 +3585,7 @@ input, select, textarea {
 		#wrapper > header {
 			padding: 9em 0 6.25em 0 ;
 			background-color: #2e3141;
-			background-image: linear-gradient(to top, rgba(46, 49, 65, 0.8), rgba(46, 49, 65, 0.8)), url("../../images/bg.jpg");
+			background-image: linear-gradient(to top, rgba(46, 49, 65, 0.8), rgba(46, 49, 65, 0.8));
 			background-size: auto,
  cover;
 			background-position: center,
@@ -4075,7 +4080,7 @@ input, select, textarea {
 
 		#footer {
 			background-color: #2e3141;
-			background-image: linear-gradient(to top, rgba(46, 49, 65, 0.8), rgba(46, 49, 65, 0.8)), url("../../images/bg.jpg");
+			background-image: linear-gradient(to top, rgba(46, 49, 65, 0.8), rgba(46, 49, 65, 0.8));
 			background-size: auto,
  cover;
 			background-position: center,
@@ -4159,60 +4164,93 @@ input, select, textarea {
 
 	}
 
-	/*EXPERIMENTAL UPLOAD GAME BUTTON*/
+	/* Collapsible section headers (Upload Game, Folders): the underline is drawn
+	   on the row itself so it runs the full width, under the toggle button too */
 	.header-container {
 		display: flex;
-		align-items: center; /* Center elements vertically */
-		justify-content: space-between; /* Push the button to the right */
+		align-items: center;
+		justify-content: space-between;
+		gap: 1em;
+		border-bottom: solid 2px rgba(255, 255, 255, 0.125);
+		padding-bottom: 1em;
+		margin-bottom: 2em;
 	}
+
+		.header-container h3.major {
+			border-bottom: 0;
+			padding-bottom: 0;
+			margin: 0;
+		}
+
+	section > .header-container {
+		margin-bottom: 1.5em;
+	}
+
 	h1 {
 		margin: 0;
 	}
 
-	/* BROKEN */
 	.header-button {
-        transform: translate(0px, -20px);
-		width: 70px;
-		height: 50px;
-		background-color: #2E3141;
-		font-family: 'Courier New';
-		color: white;
-		border: none;
-		border-radius: 2px;
-		cursor: pointer;
-	}
-	.header-button:hover {
-		background-color: #383B49;
+		flex-shrink: 0;
+		width: 3.75em;
+		padding: 0;
+		font-family: "Courier New", monospace;
+		font-size: 1em;
+		height: 2.5em;
+		line-height: 2.5em;
+		letter-spacing: 0;
 	}
 
-	/*FIX DATE PLACEHOLDER COLORING ISSUE*/
-	.dateUpload::placeholder {
-		color: black; 
-		opacity: 1; 
+	/* Date inputs: match the other dark fields and keep the calendar icon visible */
+	input[type="date"] {
+		color-scheme: dark;
+		padding: 0 1em;
 	}
 
-	.username-form{
-		padding: 15px;
-		border-radius: 10px;
+	/* File inputs: theme-style "Choose File" button */
+	input[type="file"] {
+		color: rgba(255, 255, 255, 0.65);
+		font-size: 0.9em;
+		max-width: 100%;
 	}
 
-	.password-form{
-		padding: 15px;
-		border-radius: 10px;		
+		input[type="file"]::file-selector-button {
+			background: transparent;
+			border: 0;
+			border-radius: 5px;
+			box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.125);
+			color: #ffffff;
+			cursor: pointer;
+			font-family: Raleway, Helvetica, sans-serif;
+			font-size: 0.8em;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			margin-right: 1em;
+			padding: 0.75em 1.25em;
+			text-transform: uppercase;
+		}
+
+		input[type="file"]::file-selector-button:hover {
+			background-color: rgba(255, 255, 255, 0.025);
+		}
+
+	/* Login / register */
+	.username-form,
+	.password-form {
+		margin: 0 0 1em 0;
 	}
 
-	.login-submit{
-		width: 475px;
-  		display: flex;
-    	justify-content: center;
-  		align-items: center;
+	.login-submit {
+		width: 100%;
+		margin-top: 0.5em;
 	}
 
-	.center-wrapper{
-		height: 100vh;
-  		display: flex;
-    	justify-content: center;
-  		align-items: center;
+	.center-wrapper {
+		min-height: 100vh;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 2em 0;
 	}
 
 	.hidden-row {
@@ -4237,7 +4275,7 @@ input, select, textarea {
     .pgn-maker-container {
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      min-height: 100vh;
     }
 
     .main-section {
@@ -4255,18 +4293,44 @@ input, select, textarea {
       overflow: auto;
     }
 
-    textarea {
+    .pgn-maker-container textarea {
       width: 100%;
-      height: 100%;
-      resize: none;
-      border: none;
-      outline: none;
+      min-height: 10em;
+      resize: vertical;
+      font-family: "Courier New", monospace;
       font-size: 14px;
       line-height: 1.5;
     }
 
+    .pgn-maker-container h3 {
+      margin-bottom: 0.75em;
+    }
+
+    .meta-inputs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(11em, 1fr));
+      gap: 0 1em;
+    }
+
+    .meta-inputs label input,
+    .meta-inputs label select {
+      margin-top: 0.4em;
+    }
+
+    .board-area #myBoard {
+      margin: 0 auto;
+    }
+
+    @media screen and (max-width: 736px) {
+
+      .main-section {
+        flex-direction: column;
+      }
+
+    }
+
     .output-section {
-      padding: 10px;
+      padding: 0 20px 20px 20px;
     }
 
     .output-box {
@@ -4282,15 +4346,12 @@ input, select, textarea {
     .buttons {
       margin-top: 8px;
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
     }
 
     .buttons button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
+      padding: 0 1.5em;
     }
 
     .copy-btn {
@@ -4335,4 +4396,229 @@ input, select, textarea {
 		border-width: 5px;
 		border-style: solid;
 		border-color: #ff6b6b transparent transparent transparent;
+	}
+	/* PGN Maker status line + attach button */
+	.move-status {
+		margin: 6px 0 0 0;
+		font-size: 13px;
+		color: #4caf50;
+	}
+
+	.move-status.error {
+		color: #ff6b6b;
+	}
+
+	.attach-btn {
+		background: #ff9800;
+	}
+
+	.attach-btn:hover { background: #f57c00; }
+
+	/* Auth pages */
+	.auth-form {
+		width: 475px;
+		max-width: calc(100% - 32px);
+	}
+
+	.auth-form h2 {
+		margin-bottom: 1em;
+	}
+
+	.auth-error {
+		color: #ff6b6b;
+		margin: 0 0 1em 0;
+	}
+
+	.auth-switch {
+		margin: 1.25em 0 0 0;
+		font-size: 0.9em;
+		text-align: center;
+	}
+
+	/* Folders */
+	.folder-create {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		align-items: center;
+		margin-bottom: 1em;
+	}
+
+		.folder-create input[type="text"] {
+			flex: 1 1 12em;
+			width: auto;
+		}
+
+		.folder-create select {
+			flex: 0 1 10em;
+			width: auto;
+		}
+
+	.new-folder-fields {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+
+		.new-folder-fields input[type="text"] {
+			flex: 2 1 10em;
+			width: auto;
+		}
+
+		.new-folder-fields select {
+			flex: 1 1 7em;
+			width: auto;
+		}
+
+	.folder-move {
+		min-width: 120px;
+	}
+
+	#folder-query {
+		min-width: 150px;
+	}
+
+	.folder-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+	}
+
+	/* "Show Analysis": same width as the content column below it */
+	#button-analysis {
+		display: block;
+		position: relative;
+		z-index: 1;
+		width: calc(55em / 0.8); /* buttons use a 0.8em font; this matches the 55em column */
+		max-width: 100%;
+		margin: 0 auto;
+	}
+
+	@media screen and (max-width: 980px) {
+		#button-analysis { max-width: calc(100% - 6em); }
+	}
+
+	@media screen and (max-width: 736px) {
+		#button-analysis { max-width: calc(100% - 4em); }
+	}
+
+	@media screen and (max-width: 360px) {
+		#button-analysis { max-width: calc(100% - 3em); }
+	}
+
+	/* Upload panel */
+	.uploadPanel table {
+		table-layout: fixed;
+	}
+
+	.uploadPanel td {
+		vertical-align: top;
+	}
+
+	.uploadPanel td p {
+		margin: 0 0 0.5em 0;
+		font-size: 0.9em;
+	}
+
+	.uploadPanel input[type="file"] {
+		display: block;
+		margin-bottom: 0.75em;
+	}
+
+	@media screen and (max-width: 736px) {
+
+		/* stack the two-column upload form */
+		.uploadPanel table,
+		.uploadPanel tbody,
+		.uploadPanel tr,
+		.uploadPanel td {
+			display: block;
+			width: 100%;
+		}
+
+		.uploadPanel table.alt tbody tr td {
+			border-width: 0 1px 1px 1px;
+		}
+
+		.uploadPanel table.alt tbody tr:first-child td:first-child {
+			border-top-width: 1px;
+		}
+
+	}
+
+	/* Games search: a wrapping grid instead of one cramped table row */
+	.search-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(7.5em, 1fr));
+		gap: 0.75em;
+		margin-bottom: 1.5em;
+	}
+
+		.search-grid .search-folder {
+			grid-column: span 2;
+		}
+
+		.search-grid button {
+			/* same height as the inputs (buttons use a 0.8em font) */
+			padding: 0 1em;
+			height: calc(2.75em / 0.8);
+			line-height: calc(2.75em / 0.8);
+		}
+
+	/* Games tables */
+	#full-table,
+	#searched-results {
+		font-size: 0.9em;
+	}
+
+		#full-table td,
+		#searched-results td {
+			padding: 0.6em 0.6em;
+			vertical-align: middle;
+		}
+
+		#full-table th,
+		#searched-results th {
+			padding: 0 0.6em 0.75em 0.6em;
+		}
+
+		#full-table td:nth-child(3),
+		#searched-results td:nth-child(3) {
+			white-space: nowrap;
+		}
+
+		#full-table td:first-child,
+		#searched-results td:first-child {
+			min-width: 7em;
+		}
+
+	/* trash buttons: bigger emoji, same height as the other small buttons */
+	button.delete-button,
+	button.folder-delete {
+		font-size: 0.8em;
+		height: calc(3.75em * 0.6 / 0.8);
+		line-height: calc(3.75em * 0.6 / 0.8);
+		padding: 0 0.9em;
+	}
+
+	@media screen and (max-width: 480px) {
+
+		/* the theme drops all button padding on phones, which makes labels touch the border */
+		button,
+		.button {
+			padding: 0 1.25em;
+		}
+
+	}
+
+	/* PGN autofill note next to the PGN file input */
+	.pgn-autofill-note {
+		display: inline-block;
+		margin: 0 0.5em;
+		font-size: 0.8em;
+		opacity: 0.75;
+	}
+
+	.pgn-autofill-note:empty {
+		display: none;
 	}

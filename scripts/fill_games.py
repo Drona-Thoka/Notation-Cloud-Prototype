@@ -1,8 +1,11 @@
 from cs50 import SQL
 from random import choice, randint
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta
+import os
 
-db = SQL("sqlite:///../cloud.db")
+# Resolve cloud.db relative to this script so it works from any cwd
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cloud.db")
+db = SQL("sqlite:///" + os.path.normpath(DB_PATH))
 
 players = ["Aryan", "Arnav", "Ria", "Christian", "Soham", "Ben", "Akshath", "Boris"]
 events = ["DVC", "USCF", "State", "Friendly"]
@@ -18,7 +21,7 @@ for i in range(NUM_ENTRIES):
     
     #aviod duplicates
     while black == white:
-        black = choice(white)
+        black = choice(players)
 
     game = {
         "white" : white,

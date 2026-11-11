@@ -16,6 +16,9 @@
 				<!-- Header -->
 					<header id="header">
 						<h1>WVHS</h1>
+						<nav>
+							<a href="{{ url_for('logout') }}">Log out ({{ session["username"] }})</a>
+						</nav>
 					</header>
 
 				<!-- Wrapper -->
@@ -27,7 +30,7 @@
 							</div>
 						</header>
 
-			<a class="button fit" id="button-analysis" style="width: 1240px; display: block; margin: 0 auto;"> Show Analysis</a>
+						<a class="button" id="button-analysis">Show Analysis</a>
 
 						<!-- Content -->
 							<div class="wrapper">
@@ -38,13 +41,37 @@
 										<div class="header-container">
 											<h3 class="major">Upload Game</h3>
                                             <button class="header-button" id="uploadGameButton" onclick="javascript:uploadGamePanel()">></button>
+                                        </div>
                                     </section>
 
                                     <div class="uploadPanel" id="uploadPanel" style="display: none;">
-                                        <form action="/notationCloud" method="POST" enctype="multipart/form-data" id="gameUploadForm">
+                                        <form action="/notationCloud" method="POST" enctype="multipart/form-data" id="gameUploadForm" onsubmit="return checkSubmit();">
                                             <div class="table-wrapper">
                                                 <table class="alt">
                                                     <tbody>
+                                                        <tr>
+                                                            <td colspan="2"><input id="titleUpload" name="titleUpload" placeholder="Title (e.g. Round 3 vs Naperville North)" type="text" maxlength="100"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <select id="folderUpload" name="folderUpload">
+                                                                    <option value="">No folder</option>
+                                                                    {% for f in folders %}
+                                                                    <option value="{{ f.id }}">{{ f.name }}{% if f.scope == "personal" %} (personal){% endif %}</option>
+                                                                    {% endfor %}
+                                                                    <option value="new">+ New folder...</option>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <div id="newFolderFields" class="new-folder-fields" style="display: none;">
+                                                                    <input id="newFolderName" name="newFolderName" placeholder="New folder name" type="text" maxlength="60">
+                                                                    <select id="newFolderScope" name="newFolderScope">
+                                                                        <option value="team">Team</option>
+                                                                        <option value="personal">Personal</option>
+                                                                    </select>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
                                                         <tr>
                                                             <td><input id="whitePlayerUpload" name="whitePlayerUpload" placeholder="White Player" type="text"></td>
                                                             <td><input id="blackPlayerUpload" name="blackPlayerUpload" placeholder="Black Player" type="text"></td>
@@ -82,15 +109,15 @@
                                                                 </select>
                                                             </td>
                                                             <td>
-                                                                <input id="dateUpload" name="dateUpload" class="dateUpload" placeholder="Date: MM/DD/YY" type="date" style="color:black;">
+                                                                <input id="dateUpload" name="dateUpload" class="dateUpload" placeholder="Date: MM/DD/YY" type="date">
                                                             </td>
                                                         </tr>
 														<tr>
 															<td>
-																<p>Upload PNG:</p><input type="file" name="pngUpload" id="pngUpload">
+																<p>Upload PNG:</p><input type="file" name="pngUpload" id="pngUpload" accept="image/*">
 															</td>
 															<td>
-																<p>Upload PGN:</p><input type="file" name="pgnUpload" id="pgnUpload"> <button type="button" onclick="javascript: openPgnMaker();">PGN Maker</button>
+																<p>Upload PGN:</p><input type="file" name="pgnUpload" id="pgnUpload" accept=".pgn,text/plain"><span id="pgnAutofillNote" class="pgn-autofill-note" aria-live="polite"></span> <button type="button" onclick="javascript: openPgnMaker();">PGN Maker</button>
 															</td>
 														</tr>
                                                         <tr>
@@ -111,7 +138,7 @@
 																</select>
                                                             </td>
                                                             <td>
-                                                                <button type="submit" name="uploadSubmitButton" onclick="javascript: checkSubmit();">Submit</button>
+                                                                <button type="submit" name="uploadSubmitButton">Submit</button>
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -120,23 +147,85 @@
                                         </form>
                                     </div>
 <!--################################################################################################################################-->
+					<!--Folders: team folders are shared, personal ones only show for you-->
 					<section>
-						<h3 class="major">Games: </h3>
-						
-						<!--Search feature-->
-						<form id="search-form" method="GET" action="{{ url_for('notationCloud') }}">
-							<table>
-								<tr>
-									<th><input type="text" name="date-query" placeholder="Date"></th>
-									<th><input type="text" name="event-query" placeholder="Event"></th>
-									<th><input type="text" name="board-query" placeholder="Board"></th>
-									<th><input type="text" name="white-query" placeholder="White"></th>
-									<th><input type="text" name="black-query" placeholder="Black"></th>
-									<th><input type="text" name="result-query" placeholder="Result"></th>
-									<th><input type="text" name="wvwin-query" placeholder="WV-W"></th>
-									<th><button type="button" id ="clear-search-button" name="clear-search-button">Clear   </button></th>
-								</tr>
+						<div class="header-container">
+							<h3 class="major">Folders</h3>
+							<button class="header-button" id="foldersButton" onclick="javascript:togglePanel('foldersPanel', 'foldersButton')">></button>
+						</div>
+					</section>
+
+					<div id="foldersPanel" style="display: none;">
+						<form action="{{ url_for('create_folder') }}" method="POST" class="folder-create">
+							<input type="text" name="name" placeholder="New folder name" maxlength="60" required>
+							<select name="scope">
+								<option value="team">Team</option>
+								<option value="personal">Personal</option>
+							</select>
+							<button type="submit">Create Folder</button>
+						</form>
+
+						<div class="table-wrapper">
+							<table class="alt" id="folders-table">
+								<thead>
+									<tr>
+										<th>Folder</th>
+										<th>Type</th>
+										<th>Games</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for f in folders %}
+									<tr data-folder-id="{{ f.id }}">
+										<td class="folder-name">{{ f.name }}</td>
+										<td>{{ "Personal" if f.scope == "personal" else "Team" }}</td>
+										<td>{{ f.game_count }}</td>
+										<td>
+											<div class="folder-actions">
+												<button type="button" class="folder-open small" data-id="{{ f.id }}">Open</button>
+												<button type="button" class="folder-rename small" data-id="{{ f.id }}">Rename</button>
+												<button type="button" class="folder-delete small" data-id="{{ f.id }}" data-count="{{ f.game_count }}" title="Delete folder">🗑️</button>
+											</div>
+										</td>
+									</tr>
+									{% else %}
+									<tr><td colspan="4">No folders yet.</td></tr>
+									{% endfor %}
+									<tr>
+										<td><em>Unfiled</em></td>
+										<td></td>
+										<td></td>
+										<td><div class="folder-actions"><button type="button" class="folder-open small" data-id="none">Open</button></div></td>
+									</tr>
+								</tbody>
 							</table>
+						</div>
+					</div>
+
+					<section>
+						<h3 class="major">Games</h3>
+
+						<!--Search feature-->
+						<form id="search-form" onsubmit="return false;">
+							<div class="search-grid">
+								<select name="folder-query" id="folder-query" class="search-folder">
+									<option value="">All folders</option>
+									<option value="none">Unfiled</option>
+									{% for f in folders %}
+									<option value="{{ f.id }}">{{ f.name }}{% if f.scope == "personal" %} (personal){% endif %}</option>
+									{% endfor %}
+								</select>
+								<input type="text" name="title-query" placeholder="Title">
+								<input type="text" name="date-query" placeholder="Date">
+								<input type="text" name="event-query" placeholder="Event">
+								<input type="text" name="board-query" placeholder="Board">
+								<input type="text" name="white-query" placeholder="White">
+								<input type="text" name="black-query" placeholder="Black">
+								<input type="text" name="result-query" placeholder="Result">
+								<input type="text" name="wvwin-query" placeholder="WV Win">
+								<button type="button" id="clear-search-button" name="clear-search-button">Clear</button>
+							</div>
 						</form>
 
 						<!--Searched Display-->
@@ -149,6 +238,8 @@
 							<table class="alt" id="full-table">
 								<thead>
 									<tr>
+										<th>Title</th>
+										<th>Folder</th>
 										<th>Date</th>
 										<th>Event</th>
 										<th>Board</th>
@@ -158,11 +249,16 @@
 										<th>WV Win</th>
 										<th>PNG</th>
 										<th>PGN</th>
+										<th></th>
 									</tr>
 								</thead>
 								<tbody>
 									{% for row in rows%}
             						<tr class="{% if loop.index > 20 %}hidden-row{% endif %}" data-game-id="{{ row.id }}">
+										<!--Title-->
+										<td>{{row["title"] or ""}}</td>
+										<!--Folder-->
+										{% include "folder_cell.html" %}
 										<!--Date-->
 										<td>{{row["date"]}}</td>
 										<!--Event-->
@@ -178,10 +274,10 @@
 										<!--WV WIN-->
 										<td>{{row["wv_win"]}}</td>
 										<!--PNG-->
-										<td><a href="{{ url_for('download', filename=row['png_file_name']) }}">Download PNG</a></td>
+										<td>{% if row["png_file_name"] %}<a href="{{ url_for('download', game_id=row['id'], kind='png') }}">Download PNG</a>{% else %}—{% endif %}</td>
 										<!--PGN-->
-										<td><a href="{{ url_for('download', filename=row['pgn_file_name']) }}">Download PGN</a></td>
-										<td><button type="button" data-id="{{ row.id }}" class="delete-button">🗑️</button></td>
+										<td>{% if row["pgn_file_name"] %}<button type="button" class="view-game button small" data-id="{{ row.id }}" title="Open on the analysis board">View</button> <a href="{{ url_for('download', game_id=row['id'], kind='pgn') }}">Download PGN</a>{% else %}—{% endif %}</td>
+										<td>{% if row.user_id == session.user_id or is_coach %}<button type="button" data-id="{{ row.id }}" class="delete-button small" title="Delete game">🗑️</button>{% endif %}</td>
 									</tr>
 									{% endfor %}
 								</tbody>
@@ -194,13 +290,18 @@
 
 <!--################################################################################################################################ -->
 
+								</div>
+							</div>
+					</section>
+
 				<!-- Footer -->
 					<section id="footer">
 						<div class="inner">
-								<li class="icon brands fa-googleform"><a href="https://docs.google.com/forms/d/e/1FAIpQLSc5szMg0cYiIGk4Ag_sKxZNtgDDBIs_xo1XF2kWLyMQdx_yMg/viewform?usp=sharing&ouid=108822357969581922978">Feedback form</a></li>
-								<li class="icon brands fa-github"><a href="https://github.com/Drona-Thoka/Notation-Cloud-Prototype">Github Repo</a></li>								
+							<ul class="contact">
+								<li class="icon solid fa-comment-dots"><a href="https://docs.google.com/forms/d/e/1FAIpQLSc5szMg0cYiIGk4Ag_sKxZNtgDDBIs_xo1XF2kWLyMQdx_yMg/viewform?usp=sharing&ouid=108822357969581922978">Feedback form</a></li>
+								<li class="icon brands fa-github"><a href="https://github.com/Drona-Thoka/Notation-Cloud-Prototype">Github Repo</a></li>
 								<li class="icon brands fa-instagram"><a href="http://instagram.com/wvhschess">instagram.com/wvhschess</a></li>
-								<li class="icon brands fa-googlesite"><a href="https://sites.google.com/ipsd.org/chessteam/home">sites.google.com/ipsd.org/chessteam/home</a></li>
+								<li class="icon solid fa-globe"><a href="https://sites.google.com/ipsd.org/chessteam/home">sites.google.com/ipsd.org/chessteam/home</a></li>
 							</ul>
 							<ul class="copyright">
 								<li>Developed by Drona Thoka & Christian Cheng, 2025</li>

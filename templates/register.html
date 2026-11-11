@@ -1,1 +1,33 @@
-TODO
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <title>Register a WV-Chess account</title>
+
+    </head>
+    <body>
+        <div class="center-wrapper">
+            <form action="/register" method="post" class="auth-form">
+                <h2>Register</h2>
+                {% if error %}<p class="auth-error">{{ error }}</p>{% endif %}
+                <div class="username-form">
+                    <input autocomplete="off" autofocus name="username" placeholder="Username" type="text" maxlength="30" value="{{ username or '' }}">
+                </div>
+                <div class="password-form">
+                    <input name="password" placeholder="Password (6+ characters)" type="password">
+                </div>
+                <div class="password-form">
+                    <input name="confirmation" placeholder="Confirm password" type="password">
+                </div>
+                <div class="password-form">
+                    <input name="team_code" placeholder="Team code (ask your coach)" type="password" autocomplete="off">
+                </div>
+                <button class="login-submit" type="submit">Register</button>
+                <p class="auth-switch">Already have an account? <a href="/login">Log in</a></p>
+            </form>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,13 @@
+{# Folder cell for a game row: a dropdown to move the game, or "(private)" if it's in someone else's personal folder #}
+{% if row["folder_private"] %}
+<td><em>(private)</em></td>
+{% else %}
+<td>
+    <select class="folder-move" data-id="{{ row.id }}">
+        <option value="">—</option>
+        {% for f in folders %}
+        <option value="{{ f.id }}" {% if f.id == row["folder_id"] %}selected{% endif %}>{{ f.name }}{% if f.scope == "personal" %} (personal){% endif %}</option>
+        {% endfor %}
+    </select>
+</td>
+{% endif %}

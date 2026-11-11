@@ -4,20 +4,26 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, width=device-width">
-        <link rel="stylesheet" href="../static/main.css/">
-        <title>Login to your WV-Chess account {% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <title>Login to your WV-Chess account</title>
 
     </head>
     <body>
         <div class="center-wrapper">
-            <form action="/login" method="post">
+            <form action="/login" method="post" class="auth-form">
+                <h2>Log In</h2>
+                {% if error %}<p class="auth-error">{{ error }}</p>{% endif %}
                 <div class="username-form">
-                    <input autocomplete="off" autofocus class="" name="username" placeholder="Username" type="text">
+                    <input autocomplete="off" autofocus name="username" placeholder="Username" type="text" value="{{ username or '' }}">
                 </div>
                 <div class="password-form">
-                    <input class="" name="password" placeholder="Password" type="password">
+                    <input name="password" placeholder="Password" type="password">
+                </div>
+                <div class="password-form">
+                    <input name="team_code" placeholder="Team code" type="password" autocomplete="off">
                 </div>
                 <button class="login-submit" type="submit">Log In</button>
+                <p class="auth-switch">No account? <a href="/register">Register</a></p>
             </form>
         </div>
     </body>
