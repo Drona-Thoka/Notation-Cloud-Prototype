@@ -59,9 +59,36 @@ def inject_permissions():
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+# Absolute paths so the app works when a host starts it from another directory
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+app.config["SESSION_FILE_DIR"] = os.path.join(APP_DIR, "flask_session")
 Session(app)
 
-db = SQL("sqlite:///cloud.db")
+# cloud.db isn't in git; a fresh install creates an empty one (cs50's SQL needs the file to exist)
+DB_PATH = os.path.join(APP_DIR, "cloud.db")
+open(DB_PATH, "a").close()
+db = SQL("sqlite:///" + DB_PATH)
+
+db.execute("""CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
+    hash TEXT NOT NULL)""")
+db.execute("""CREATE TABLE IF NOT EXISTS games (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    user_id INTEGER DEFAULT NULL,
+    white_player TEXT NOT NULL DEFAULT 'N/A',
+    black_player TEXT NOT NULL DEFAULT 'N/A',
+    board_number TEXT NOT NULL DEFAULT 'Alt',
+    result TEXT NOT NULL DEFAULT '0-0',
+    wv_win TEXT NOT NULL DEFAULT 'YES',
+    date DATETIME DEFAULT CURRENT_DATE,
+    png_file_name TEXT,
+    png_file_type TEXT NOT NULL DEFAULT '.png',
+    png_file_data BLOB DEFAULT NULL,
+    pgn_file_name TEXT,
+    pgn_file_type TEXT NOT NULL DEFAULT '.pgn',
+    pgn_file_data BLOB DEFAULT NULL,
+    event TEXT NOT NULL DEFAULT 'Friendly')""")
 
 # Add the title column to older databases that don't have it yet
 if not db.execute("SELECT name FROM pragma_table_info('games') WHERE name = 'title'"):
